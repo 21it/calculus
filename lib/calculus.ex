@@ -68,6 +68,10 @@ defmodule Calculus do
 
     eval_clauses =
       raw_eval_clauses
+      |> case do
+        {:__block__, _, []} -> []
+        [_ | _] -> raw_eval_clauses
+      end
       |> Enum.map(&add_security_key/1)
       |> Enum.concat(default_eval_clause)
 
