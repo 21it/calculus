@@ -1,32 +1,38 @@
 defmodule Calculus do
   @moduledoc """
-  Proof of concept inspired by church encoding
+  Proof of concept inspired by church encoding.
+
+  Example of "Calculus" data type `User` have:
+
+  - mutable `name` field (`get_name/1`, `set_name/2` methods)
+  - immutable `id` field (`get_id/1` method)
+  - private `balance` field (used internally in `deposit/2` and `withdraw/2` methods)
 
   ## Example
 
   ```
-  iex> %Calculus{it: it0, returns: :ok} = Stack.new([1, 2, 3])
-  iex> %Calculus{it: it1, returns: :ok} = Stack.push(it0, 0)
-  iex> %Calculus{it: it2, returns: {:ok, 1}} = Stack.pop(it0)
-  iex> %Calculus{it: it3, returns: [1, 2, 3]} = Stack.to_list(it0)
-  iex> %Calculus{it: it4, returns: [0, 1, 2, 3]} = Stack.to_list(it1)
-  iex> %Calculus{it: it5, returns: [2, 3]} = Stack.to_list(it2)
-  iex> Enum.all?([it0, it1, it2, it3, it4, it5], &is_function/1)
+  iex> it0 = User.new(id: 1, name: "Jessy")
+  iex> 1 = User.get_id(it0)
+  iex> "Jessy" = User.get_name(it0)
+  iex> %Calculus{it: it1, returns: "Jessy"} = User.set_name(it0, "Bob")
+  iex> "Bob" = User.get_name(it1)
+  iex> it2 = User.deposit(it1, 100)
+  iex> %Calculus{it: it3, returns: :ok} = User.withdraw(it2, 50)
+  iex> %Calculus{it: ^it3, returns: :insufficient_funds} = User.withdraw(it3, 51)
+  iex> %Calculus{it: it4, returns: :ok} = User.withdraw(it3, 50)
+  iex> %Calculus{it: ^it4, returns: :insufficient_funds} = User.withdraw(it4, 1)
+  iex> Enum.all?([it0, it1, it2, it3, it4], &is_function/1)
   true
 
-  iex> %Calculus{it: it0, returns: :ok} = Stack.new([])
-  iex> %Calculus{it: it1, returns: returns} = Stack.pop(it0)
-  iex> Enum.all?([it0, it1], &is_function/1)
-  true
-  iex> returns
-  {:error, "Can't pop from empty instance of the Elixir.Stack"}
+  iex> User.new(id: 1, name: "Jessy") |> User.deposit(100) |> User.set_name("Bob") |> User.withdraw(50) |> User.get_name
+  "Bob"
 
-  iex> Stack.push(&({&2, &1}), 0)
-  ** (RuntimeError) Instance of the type Elixir.Stack can't be created in other module Elixir.CalculusTest
+  iex> it = User.new(id: 1, name: "Jessy")
+  iex> it.(:get_name, :fake_security_key)
+  ** (RuntimeError) For instance of the type Elixir.User got unsupported CMD=:get_name with SECURITY_KEY=:fake_security_key
 
-  iex> %Calculus{it: it, returns: :ok} = Stack.new([1, 2, 3])
-  iex> it.(:pop, :fake_security_key)
-  ** (RuntimeError) For instance of the type Elixir.Stack got unsupported CMD=:pop with SECURITY_KEY=:fake_security_key
+  iex> User.get_name(&({&2, &1}))
+  ** (RuntimeError) Instance of the type Elixir.User can't be created in other module Elixir.CalculusTest
   ```
   """
 
@@ -79,6 +85,10 @@ defmodule Calculus do
 
     quote location: :keep do
       @security_key 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom()
+
+      defp eval(%Calculus{it: fx}, cmd) do
+        eval(fx, cmd)
+      end
 
       defp eval(fx, cmd) do
         case Function.info(fx, :module) do
