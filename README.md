@@ -2,7 +2,7 @@
 
 Encapsulation. One of the basic principles of modern software development. We hide implementation details of the entity and expose to outer world just safe interface for this entity. That's great idea because of many reasons. Erlang and Elixir ecosystem supports this principle a lot: we have private functions and macros inside our modules, we have internal states inside our processes. But unfortunately there is one place where encapsulation is completely broken at the moment (Erlang/OTP 22, Elixir 1.9.1). This place is term of user defined data type, like record or structure.
 
-This package introduces other way of definition of abstract data types and safe interfaces for them. Inspired by Alonzo Church. Powered by Lambda Calculus.
+This package introduces another way to define a new data type and safe interface for it. Inspired by Alonzo Church. Powered by Lambda Calculus.
 
 <img src="priv/img/logo.png" width="300"/>
 
