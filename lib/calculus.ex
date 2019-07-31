@@ -14,14 +14,20 @@ defmodule Calculus do
   iex> it0 = User.new(id: 1, name: "Jessy")
   iex> 1 = User.get_id(it0)
   iex> "Jessy" = User.get_name(it0)
-  iex> %Calculus{it: it1, returns: "Jessy"} = User.set_name(it0, "Bob")
+  iex> cs0 = User.set_name(it0, "Bob")
+  iex> it1 = Calculus.it(cs0)
+  iex> "Jessy" = Calculus.returns(cs0)
+  iex> "Bob" = User.get_name(cs0)
   iex> "Bob" = User.get_name(it1)
   iex> it2 = User.deposit(it1, 100)
-  iex> %Calculus{it: it3, returns: :ok} = User.withdraw(it2, 50)
-  iex> %Calculus{it: ^it3, returns: :insufficient_funds} = User.withdraw(it3, 51)
-  iex> %Calculus{it: it4, returns: :ok} = User.withdraw(it3, 50)
-  iex> %Calculus{it: ^it4, returns: :insufficient_funds} = User.withdraw(it4, 1)
-  iex> Enum.all?([it0, it1, it2, it3, it4], &is_function/1)
+  iex> cs1 = User.withdraw(it2, 50)
+  iex> it3 = Calculus.it(cs1)
+  iex> :ok = Calculus.returns(cs1)
+  iex> cs2 = User.withdraw(it3, 51)
+  iex> ^it3 = Calculus.it(cs2)
+  iex> :insufficient_funds = Calculus.returns(cs2)
+  iex> Enum.all?([it0, it1, it2, it3, cs0, cs1, cs2], &is_function/1)
+  iex> true
   true
 
   iex> User.new(id: 1, name: "Jessy") |> User.deposit(100) |> User.set_name("Bob") |> User.withdraw(50) |> User.get_name
@@ -86,15 +92,18 @@ defmodule Calculus do
     quote location: :keep do
       @security_key 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom()
 
-      defp eval(%Calculus{it: fx}, cmd) do
-        eval(fx, cmd)
-      end
-
       defp eval(fx, cmd) do
         case Function.info(fx, :module) do
           {:module, __MODULE__} ->
-            %Calculus{it: unquote(quoted_it), returns: returns} = fx.(cmd, @security_key)
-            %Calculus{it: unquote(eval_fn), returns: returns}
+            cs = fx.(cmd, @security_key)
+            unquote(quoted_it) = Calculus.it(cs)
+            Calculus.new(unquote(eval_fn), Calculus.returns(cs))
+
+          {:module, unquote(__MODULE__)} ->
+            case unquote(__MODULE__).it(fx) do
+              ^fx -> raise(unquote("Circular dependency for #{__MODULE__} type."))
+              fx0 -> eval(fx0, cmd)
+            end
 
           {:module, module} ->
             "Instance of the type #{__MODULE__} can't be created in other module #{module}"
@@ -102,7 +111,7 @@ defmodule Calculus do
         end
       end
 
-      defp pure(%Calculus{} = x) do
+      defp pure(x) do
         eval(fn :new, @security_key -> x end, :new)
       end
     end
@@ -135,6 +144,13 @@ defmodule Calculus do
 
           :returns, @security_key ->
             calculus(it: it0, returns: returns1)
+
+          cmd, security_key ->
+            raise(
+              "For instance of the type #{__MODULE__} got unsupported CMD=#{inspect(cmd)} with SECURITY_KEY=#{
+                inspect(security_key)
+              }"
+            )
         end
 
         calculus(it: f1, returns: returns0)
