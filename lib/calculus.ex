@@ -107,4 +107,65 @@ defmodule Calculus do
       end
     end
   end
+
+  #
+  # define calculus data type as church-encoded type as well
+  #
+
+  require Record
+
+  Record.defrecordp(:calculus,
+    it: nil,
+    returns: nil
+  )
+
+  @security_key 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom()
+
+  defp eval(f0, cmd) do
+    case Function.info(f0, :module) do
+      {:module, __MODULE__} ->
+        calculus(
+          it: calculus(it: it1, returns: returns1) = it0,
+          returns: returns0
+        ) = f0.(cmd, @security_key)
+
+        f1 = fn
+          :it, @security_key ->
+            calculus(it: it0, returns: it1)
+
+          :returns, @security_key ->
+            calculus(it: it0, returns: returns1)
+        end
+
+        calculus(it: f1, returns: returns0)
+
+      {:module, module} ->
+        "Instance of the type #{__MODULE__} can't be created in other module #{module}"
+        |> raise
+    end
+  end
+
+  def new(it0, returns0) do
+    calculus(it: it1, returns: :ok) =
+      fn
+        :new, @security_key ->
+          calculus(
+            it: calculus(it: it0, returns: returns0),
+            returns: :ok
+          )
+      end
+      |> eval(:new)
+
+    it1
+  end
+
+  def it(fx) do
+    calculus(it: ^fx, returns: it) = eval(fx, :it)
+    it
+  end
+
+  def returns(fx) do
+    calculus(it: ^fx, returns: returns) = eval(fx, :returns)
+    returns
+  end
 end
