@@ -42,9 +42,6 @@ defmodule Calculus do
   ```
   """
 
-  @enforce_keys [:it, :returns]
-  defstruct @enforce_keys
-
   defmacro __using__(_) do
     quote location: :keep do
       import Calculus, only: [defcalculus: 2]
