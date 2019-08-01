@@ -110,7 +110,7 @@ defmodule Calculus do
           {:module, __MODULE__} ->
             cs = fx.(cmd, @security_key)
             unquote(quoted_it) = Calculus.it(cs)
-            Calculus.new(unquote(eval_fn), Calculus.returns(cs))
+            Calculus.new(unquote(eval_fn), Calculus.return(cs))
 
           {:module, unquote(__MODULE__)} ->
             fx
@@ -124,7 +124,7 @@ defmodule Calculus do
       end
 
       def return(fx) do
-        Calculus.returns(fx)
+        Calculus.return(fx)
       end
 
       defmacrop construct(x) do
@@ -146,7 +146,7 @@ defmodule Calculus do
 
   Record.defrecordp(:calculus,
     it: nil,
-    returns: nil
+    return: nil
   )
 
   @security_key 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom()
@@ -155,16 +155,16 @@ defmodule Calculus do
     case Function.info(f0, :module) do
       {:module, __MODULE__} ->
         calculus(
-          it: calculus(it: it1, returns: returns1) = it0,
-          returns: returns0
+          it: calculus(it: it1, return: return1) = it0,
+          return: return0
         ) = f0.(cmd, @security_key)
 
         f1 = fn
           :it, @security_key ->
-            calculus(it: it0, returns: it1)
+            calculus(it: it0, return: it1)
 
-          :returns, @security_key ->
-            calculus(it: it0, returns: returns1)
+          :return, @security_key ->
+            calculus(it: it0, return: return1)
 
           cmd, security_key ->
             raise(
@@ -174,7 +174,7 @@ defmodule Calculus do
             )
         end
 
-        calculus(it: f1, returns: returns0)
+        calculus(it: f1, return: return0)
 
       {:module, module} ->
         "Instance of the type #{__MODULE__} can't be created in other module #{module}"
@@ -182,13 +182,13 @@ defmodule Calculus do
     end
   end
 
-  def new(it0, returns0) do
-    calculus(it: it1, returns: :ok) =
+  def new(it0, return0) do
+    calculus(it: it1, return: :ok) =
       fn
         :new, @security_key ->
           calculus(
-            it: calculus(it: it0, returns: returns0),
-            returns: :ok
+            it: calculus(it: it0, return: return0),
+            return: :ok
           )
       end
       |> eval(:new)
@@ -197,12 +197,12 @@ defmodule Calculus do
   end
 
   def it(fx) do
-    calculus(it: ^fx, returns: it) = eval(fx, :it)
+    calculus(it: ^fx, return: it) = eval(fx, :it)
     it
   end
 
-  def returns(fx) do
-    calculus(it: ^fx, returns: returns) = eval(fx, :returns)
-    returns
+  def return(fx) do
+    calculus(it: ^fx, return: return) = eval(fx, :return)
+    return
   end
 end
