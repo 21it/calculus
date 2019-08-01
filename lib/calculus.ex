@@ -89,6 +89,25 @@ defmodule Calculus do
     quote location: :keep do
       @security_key 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom()
 
+      defmacrop calculus(state: state, return: return) do
+        quote location: :keep do
+          Calculus.new(unquote(state), unquote(return))
+        end
+      end
+
+      defmacrop calculus(return: return, state: state) do
+        quote location: :keep do
+          Calculus.new(unquote(state), unquote(return))
+        end
+      end
+
+      defmacrop calculus(some) do
+        "Calculus expect keyword list, example: calculus(state: foo, return: bar). But got term #{
+          inspect(some)
+        }"
+        |> raise
+      end
+
       defp eval(fx, cmd) do
         case Function.info(fx, :module) do
           {:module, __MODULE__} ->

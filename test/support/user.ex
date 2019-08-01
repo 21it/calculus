@@ -10,28 +10,40 @@ defmodule User do
 
   defcalculus user(id: id, name: name, balance: balance) = it do
     :get_name ->
-      Calculus.new(it, name)
+      calculus(
+        state: it,
+        return: name
+      )
 
     {:set_name, new_name} ->
-      it
-      |> user(name: new_name)
-      |> Calculus.new(name)
+      calculus(
+        state: user(it, name: new_name),
+        return: name
+      )
 
     :get_id ->
-      Calculus.new(it, id)
+      calculus(
+        state: it,
+        return: id
+      )
 
     {:deposit, amount} ->
-      it
-      |> user(balance: balance + amount)
-      |> Calculus.new(:ok)
+      calculus(
+        state: user(it, balance: balance + amount),
+        return: :ok
+      )
 
     {:withdraw, amount} when amount <= balance ->
-      it
-      |> user(balance: balance - amount)
-      |> Calculus.new(:ok)
+      calculus(
+        state: user(it, balance: balance - amount),
+        return: :ok
+      )
 
     {:withdraw, _} ->
-      Calculus.new(it, :insufficient_funds)
+      calculus(
+        state: it,
+        return: :insufficient_funds
+      )
   end
 
   def new(id: id, name: name) when is_integer(id) and id > 0 and is_binary(name) do
