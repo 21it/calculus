@@ -107,10 +107,8 @@ defmodule Calculus do
         end
       end
 
-      defmacrop return(fx) do
-        quote location: :keep do
-          Calculus.returns(unquote(fx))
-        end
+      def return(fx) do
+        Calculus.returns(fx)
       end
 
       defmacrop construct(x) do
@@ -119,7 +117,6 @@ defmodule Calculus do
             Calculus.new(unquote(x), :ok)
           end
           |> eval(:new)
-          |> Calculus.it()
         end
       end
     end
