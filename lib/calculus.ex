@@ -87,14 +87,18 @@ defmodule Calculus do
       @security_key 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom()
 
       defmacrop calculus(state: state, return: return) do
+        cmod = unquote(__MODULE__)
+
         quote location: :keep do
-          Calculus.new(unquote(state), unquote(return))
+          unquote(cmod).new(unquote(state), unquote(return))
         end
       end
 
       defmacrop calculus(return: return, state: state) do
+        cmod = unquote(__MODULE__)
+
         quote location: :keep do
-          Calculus.new(unquote(state), unquote(return))
+          unquote(cmod).new(unquote(state), unquote(return))
         end
       end
 
@@ -105,15 +109,15 @@ defmodule Calculus do
         |> raise
       end
 
-      defp eval(fx, cmd) do
-        case Function.info(fx, :module) do
+      defp eval(it, cmd) do
+        case Function.info(it, :module) do
           {:module, __MODULE__} ->
-            cs = fx.(cmd, @security_key)
+            cs = it.(cmd, @security_key)
             unquote(quoted_state) = Calculus.state(cs)
             Calculus.new(unquote(eval_fn), Calculus.return(cs))
 
           {:module, unquote(__MODULE__)} ->
-            fx
+            it
             |> unquote(__MODULE__).state()
             |> eval(cmd)
 
@@ -123,14 +127,16 @@ defmodule Calculus do
         end
       end
 
-      def return(fx) do
-        Calculus.return(fx)
+      def return(it) do
+        unquote(__MODULE__).return(it)
       end
 
-      defmacrop construct(x) do
+      defmacrop construct(state) do
+        cmod = unquote(__MODULE__)
+
         quote location: :keep do
           fn :new, @security_key ->
-            Calculus.new(unquote(x), :ok)
+            unquote(cmod).new(unquote(state), :ok)
           end
           |> eval(:new)
         end
