@@ -113,8 +113,8 @@ defmodule Calculus do
         case Function.info(it, :module) do
           {:module, __MODULE__} ->
             cs = it.(cmd, @security_key)
-            unquote(quoted_state) = Calculus.state(cs)
-            Calculus.new(unquote(eval_fn), Calculus.return(cs))
+            unquote(quoted_state) = unquote(__MODULE__).state(cs)
+            unquote(__MODULE__).new(unquote(eval_fn), unquote(__MODULE__).return(cs))
 
           {:module, unquote(__MODULE__)} ->
             it
