@@ -8,40 +8,40 @@ defmodule User do
     balance: nil
   )
 
-  defcalculus user(id: id, name: name, balance: balance) = it do
+  defcalculus user(id: id, name: name, balance: balance) = state do
     :get_name ->
       calculus(
-        state: it,
+        state: state,
         return: name
       )
 
     {:set_name, new_name} ->
       calculus(
-        state: user(it, name: new_name),
+        state: user(state, name: new_name),
         return: name
       )
 
     :get_id ->
       calculus(
-        state: it,
+        state: state,
         return: id
       )
 
     {:deposit, amount} ->
       calculus(
-        state: user(it, balance: balance + amount),
+        state: user(state, balance: balance + amount),
         return: :ok
       )
 
     {:withdraw, amount} when amount <= balance ->
       calculus(
-        state: user(it, balance: balance - amount),
+        state: user(state, balance: balance - amount),
         return: :ok
       )
 
     {:withdraw, _} ->
       calculus(
-        state: it,
+        state: state,
         return: :insufficient_funds
       )
   end
