@@ -11,27 +11,27 @@ defmodule Calculus do
   ## Example
 
   ```
-  iex> it0 = User.new(id: 1, name: "Jessy")
-  iex> 1 = User.get_id(it0)
-  iex> "Jessy" = User.get_name(it0)
-  iex> it1 = User.set_name(it0, "Bob")
-  iex> "Jessy" = User.return(it1)
-  iex> "Bob" = User.get_name(it1)
-  iex> it2 = User.deposit(it1, 100)
-  iex> :ok = User.return(it2)
-  iex> it3 = User.withdraw(it2, 50)
-  iex> :ok = User.return(it3)
-  iex> it4 = User.withdraw(it3, 51)
-  iex> :insufficient_funds = User.return(it4)
-  iex> Enum.all?([it0, it1, it2, it3, it4], &is_function/1)
+  iex> u0 = User.new(id: 1, name: "Jessy")
+  iex> 1 = User.get_id(u0)
+  iex> "Jessy" = User.get_name(u0)
+  iex> u1 = User.set_name(u0, "Bob")
+  iex> "Jessy" = User.return(u1)
+  iex> "Bob" = User.get_name(u1)
+  iex> u2 = User.deposit(u1, 100)
+  iex> :ok = User.return(u2)
+  iex> u3 = User.withdraw(u2, 50)
+  iex> :ok = User.return(u3)
+  iex> u4 = User.withdraw(u3, 51)
+  iex> :insufficient_funds = User.return(u4)
+  iex> Enum.all?([u0, u1, u2, u3, u4], &is_function/1)
   iex> true
   true
 
   iex> User.new(id: 1, name: "Jessy") |> User.deposit(100) |> User.set_name("Bob") |> User.withdraw(50) |> User.get_name
   "Bob"
 
-  iex> it = User.new(id: 1, name: "Jessy")
-  iex> it.(:get_name, :fake_security_key)
+  iex> u = User.new(id: 1, name: "Jessy")
+  iex> u.(:get_name, :fake_security_key)
   ** (RuntimeError) For instance of the type Elixir.Calculus got unsupported CMD=:get_name with SECURITY_KEY=:fake_security_key
 
   iex> User.get_name(&({&2, &1}))
@@ -151,20 +151,20 @@ defmodule Calculus do
 
   @security_key 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom()
 
-  defp eval(f0, cmd) do
-    case Function.info(f0, :module) do
+  defp eval(it0, cmd) do
+    case Function.info(it0, :module) do
       {:module, __MODULE__} ->
         calculus(
-          state: calculus(state: it1, return: return1) = it0,
+          state: calculus(state: state1, return: return1) = state0,
           return: return0
-        ) = f0.(cmd, @security_key)
+        ) = it0.(cmd, @security_key)
 
-        f1 = fn
+        it1 = fn
           :state, @security_key ->
-            calculus(state: it0, return: it1)
+            calculus(state: state0, return: state1)
 
           :return, @security_key ->
-            calculus(state: it0, return: return1)
+            calculus(state: state0, return: return1)
 
           cmd, security_key ->
             raise(
@@ -174,7 +174,7 @@ defmodule Calculus do
             )
         end
 
-        calculus(state: f1, return: return0)
+        calculus(state: it1, return: return0)
 
       {:module, module} ->
         "Instance of the type #{__MODULE__} can't be created in other module #{module}"
