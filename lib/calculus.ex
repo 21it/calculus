@@ -61,7 +61,7 @@ defmodule Calculus do
     {exp, ctx, [new_left, right]}
   end
 
-  defmacro defcalculus(quoted_it, do: raw_eval_clauses) do
+  defmacro defcalculus(quoted_state, do: raw_eval_clauses) do
     default_eval_clause =
       quote location: :keep do
         cmd, security_key ->
@@ -109,12 +109,12 @@ defmodule Calculus do
         case Function.info(fx, :module) do
           {:module, __MODULE__} ->
             cs = fx.(cmd, @security_key)
-            unquote(quoted_it) = Calculus.it(cs)
+            unquote(quoted_state) = Calculus.state(cs)
             Calculus.new(unquote(eval_fn), Calculus.return(cs))
 
           {:module, unquote(__MODULE__)} ->
             fx
-            |> unquote(__MODULE__).it()
+            |> unquote(__MODULE__).state()
             |> eval(cmd)
 
           {:module, module} ->
@@ -145,7 +145,7 @@ defmodule Calculus do
   require Record
 
   Record.defrecordp(:calculus,
-    it: nil,
+    state: nil,
     return: nil
   )
 
@@ -155,16 +155,16 @@ defmodule Calculus do
     case Function.info(f0, :module) do
       {:module, __MODULE__} ->
         calculus(
-          it: calculus(it: it1, return: return1) = it0,
+          state: calculus(state: it1, return: return1) = it0,
           return: return0
         ) = f0.(cmd, @security_key)
 
         f1 = fn
-          :it, @security_key ->
-            calculus(it: it0, return: it1)
+          :state, @security_key ->
+            calculus(state: it0, return: it1)
 
           :return, @security_key ->
-            calculus(it: it0, return: return1)
+            calculus(state: it0, return: return1)
 
           cmd, security_key ->
             raise(
@@ -174,7 +174,7 @@ defmodule Calculus do
             )
         end
 
-        calculus(it: f1, return: return0)
+        calculus(state: f1, return: return0)
 
       {:module, module} ->
         "Instance of the type #{__MODULE__} can't be created in other module #{module}"
@@ -182,27 +182,27 @@ defmodule Calculus do
     end
   end
 
-  def new(it0, return0) do
-    calculus(it: it1, return: :ok) =
+  def new(state0, return0) do
+    calculus(state: state1, return: :ok) =
       fn
         :new, @security_key ->
           calculus(
-            it: calculus(it: it0, return: return0),
+            state: calculus(state: state0, return: return0),
             return: :ok
           )
       end
       |> eval(:new)
 
-    it1
+    state1
   end
 
-  def it(fx) do
-    calculus(it: ^fx, return: it) = eval(fx, :it)
-    it
+  def state(it) do
+    calculus(state: ^it, return: return) = eval(it, :state)
+    return
   end
 
-  def return(fx) do
-    calculus(it: ^fx, return: return) = eval(fx, :return)
+  def return(it) do
+    calculus(state: ^it, return: return) = eval(it, :return)
     return
   end
 end
