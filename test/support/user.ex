@@ -38,7 +38,6 @@ defmodule User do
     user(id: id, name: name, balance: 0)
     |> Calculus.new(:ok)
     |> pure()
-    |> Calculus.it()
   end
 
   def get_name(it) do
@@ -58,9 +57,7 @@ defmodule User do
   end
 
   def deposit(it, amount) when is_integer(amount) and amount > 0 do
-    it
-    |> eval({:deposit, amount})
-    |> Calculus.it()
+    eval(it, {:deposit, amount})
   end
 
   def withdraw(it, amount) when is_integer(amount) and amount > 0 do

@@ -35,7 +35,7 @@ defmodule Calculus do
 
   iex> it = User.new(id: 1, name: "Jessy")
   iex> it.(:get_name, :fake_security_key)
-  ** (RuntimeError) For instance of the type Elixir.User got unsupported CMD=:get_name with SECURITY_KEY=:fake_security_key
+  ** (RuntimeError) For instance of the type Elixir.Calculus got unsupported CMD=:get_name with SECURITY_KEY=:fake_security_key
 
   iex> User.get_name(&({&2, &1}))
   ** (RuntimeError) Instance of the type Elixir.User can't be created in other module Elixir.CalculusTest
@@ -97,10 +97,9 @@ defmodule Calculus do
             Calculus.new(unquote(eval_fn), Calculus.returns(cs))
 
           {:module, unquote(__MODULE__)} ->
-            case unquote(__MODULE__).it(fx) do
-              ^fx -> raise(unquote("Circular dependency for #{__MODULE__} type."))
-              fx0 -> eval(fx0, cmd)
-            end
+            fx
+            |> unquote(__MODULE__).it()
+            |> eval(cmd)
 
           {:module, module} ->
             "Instance of the type #{__MODULE__} can't be created in other module #{module}"
