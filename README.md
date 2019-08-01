@@ -64,7 +64,7 @@ That's also true, because we can access any field of `URI` type instance in any 
 
 ```elixir
 iex> uri = URI.parse("https://hello.world")
-iex> %URI{host: host} = url
+iex> %URI{host: host} = uri
 iex> host
 "hello.world"
 ```
