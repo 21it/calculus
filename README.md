@@ -12,9 +12,9 @@ First of all, let's figure out what's wrong with Elixir structs. For instance le
 
 First statement:
 
-- **default data constructor `%URI{}` is always public**
+- **default constructor `%URI{}` of data type `URI` is always public**
 
-You can say "hey, this is not a constructor function, it a syntactic sugar for literal term". But anyway, this is **expression** and value of this expression is Elixir struct with type `URI`. For simplicity I'll call this thing as "default constructor". And this default constructor is always public. Indeed, you can write in any place or your program something like this:
+You can say "hey, this is not a constructor function, it's a syntactic sugar for value, literal Elixir term". But anyway, this is **expression** and value of this expression is Elixir struct of `URI` type. For simplicity I'll call this thing as **default constructor**. And this default constructor is always public. Indeed, you can write in any place or your program something like this:
 
 ```elixir
 iex> uri = %URI{host: :BANG}
@@ -30,7 +30,7 @@ iex> uri = %URI{host: :BANG}
 }
 ```
 
-Is `uri` term valid instance of the `URI` type? Probably not, let's try to do something with it:
+Is `uri` term valid value of the `URI` type? Probably not, let's try to do something with it:
 
 ```elixir
 iex> URI.to_string(uri)
@@ -38,7 +38,7 @@ iex> URI.to_string(uri)
 ** (FunctionClauseError) no function clause matching in String.contains?/2
 ```
 
-Oops, our self-made instance of `URI` type caused exception. Default constructor does not validate arguments, and this is a problem in our case because `host` at least have to be instance of `String.t` type. As a solution of this problem, developers introduced concept of [smart constructors](https://wiki.haskell.org/Smart_constructors). Do we have a smart constructor for `URI` type? Probably here it is:
+Oops, this value of `URI` type caused exception. Default constructor does not validate arguments, and this is a problem in our case because `host` at least have to be value of `String.t` type. As a solution of this problem, developers introduced concept of [smart constructors](https://wiki.haskell.org/Smart_constructors). Do we have a smart constructor for `URI` type? Probably here it is:
 
 ```elixir
 iex> uri = URI.parse("https://hello.world")
@@ -54,13 +54,13 @@ iex> uri = URI.parse("https://hello.world")
 }
 ```
 
-Beautiful. We have a smart constructor which creates instance of the type `URI` properly. But remember our first statement? Default constructor is always public, which means that we can just **HOPE** that people will use smart constructor instead of default one. Concept of the smart constructors implies fact that we will hide default unsafe constructors. But we can't reach it with Elixir structs.
+Beautiful. We have a smart constructor which creates value of the type `URI` properly. But remember our first statement? Default constructor is always public, which means that we can just **hope** that people will use smart constructor instead of default one. Concept of the smart constructors implies fact that we will hide unsafe default constructors. But we can't reach it with Elixir structs.
 
 Second statement:
 
-- **all fields of `URI` instance are public**
+- **all fields of `URI` value are public**
 
-That's also true, because we can access any field of `URI` type instance in any place of our program (where this instance exists):
+That's also true, because we can access any field of `URI` value in any place of our program (where this value exists):
 
 ```elixir
 iex> uri = URI.parse("https://hello.world")
@@ -69,11 +69,11 @@ iex> host
 "hello.world"
 ```
 
-Concept of Elixir structs does not distinguish fields which are meant to be used in external world and fields which are meant only for internal usage. Sad but true, we just can write some documentation and **HOPE** that people will read it and follow our guidelines.
+Concept of Elixir structs does not distinguish fields which are meant to be used in external world and fields which are meant only for internal usage. Sad but true, we just can write some documentation and **hope** that people will read it, follow our guidelines and will not rely on data which is meant to be private.
 
 Third statement:
 
-- **all fields of `URI` instance are mutable (in functional meaning)**
+- **all fields of `URI` value are mutable (in functional meaning)**
 
 This sentence looks weird because all Erlang/Elixir terms are immutable, right? I will explain what I meant by example:
 
@@ -90,14 +90,15 @@ Let's consider what happened here:
 - We create new value based on `uri` by replacing the port with -80
 - We apply `to_string` function to new `uri` value (and what scares - it worked)
 
-This means that even if smart constructor has been used to create proper value of the type `URI`, we can just **HOPE** that this proper value will not be corrupted later.
+This means that even if smart constructor has been used to create proper value of the type `URI`, we can just **hope** that this proper value will not be corrupted later.
 
-We have 3 statements about Elixir structures. Don’t you think that we rely on **HOPE** too much when we are using structures? As we know, `Hope is Not a Strategy ©`. What if I will say you that we can have `real smart constructors`, `real private fields`, `real immutable fields` and many other fun things almost for free? And we can do it without any relatively expensive stuff like processes? Well, we really can, and all that we need - just one simple thing. It is λ-expression.
+We have 3 statements about Elixir structures. Don’t you think that we rely on **hope** too much? As we know, "Hope is Not a Strategy" ©. What if I will say you that we can have real `smart constructors`, real `private fields`, real `immutable fields` and many other fun things almost for free? And we can do it without any relatively expensive stuff like processes? Well, we really can, and all that we need - just one simple thing. It is λ-expression.
 
 ## Idea
 
-Mathematical theory says us that λ-calculus is Turing complete, it is a universal model of computation that can be used to simulate any Turing machine. This statement means that through λ-expressions we can express things which we don't have in our language by default.
-For example, let's imagine that we don't have boolean type in Elixir (it's not so far from the truth). To implement boolean type from scratch, we should understand real nature of boolean type. What is the value of boolean type? This is the choice between 2 possibilities. And we have only 2 values of this type (true and false). So we should have 2 λ-expressions which are representing all possible choices between 2 possibilities. There is only one way how we can express this (we can swap λtrue and λfalse definitions, but it will be still isomorphic):
+Mathematical theory says us that λ-calculus is Turing complete, it is a universal model of computation that can be used to simulate any Turing machine. This statement means that using λ-expressions we can express things which we don't have in our language by default.
+
+For example, let's imagine that we don't have boolean type in Elixir (it's not so far from the truth). To implement boolean type from scratch, we should understand real nature of boolean type. What is the value of boolean type? This is the choice between 2 possibilities. And we have only 2 values of this type (true and false). So we should have 2 λ-expressions which are representing all possible choices between 2 possibilities. There is only one way how we can express this (well, we can swap λtrue and λfalse definitions, and it will be other way, but it will be isomorphic thing):
 
 ```elixir
 iex> λtrue = fn x, _ -> x end
@@ -106,21 +107,21 @@ iex> λfalse = fn _, x -> x end
 #Function<13.91303403/2 in :erl_eval.expr/5>
 ```
 
-Now we have definitions of all `λbool` type values without having `bool` type itself, let's implement `λand` function to show that it will behave in our λ-world the same way like `and` behaves in normal world. First of all, let's write signatures of both functions
+Now we have definitions of all values of `λbool` type without having `bool` type itself, let's implement `λand` function to show that it will behave in our λ-world the same way like `and` behaves in normal world. First of all, let's write signatures of both functions
 
 ```elixir
 and(bool, bool)    :: bool
 λand(λbool, λbool) :: λbool
 ```
 
-As you can see, they are isomorphic. According type specifications, knowledge about boolean logic and our definition of `λbool`, function `λand` will look like:
+As you can see, they are isomorphic. According type specifications, knowledge about boolean logic and our definitions of `λtrue` and `λfalse`, our new `λand` function will look like:
 
 ```elixir
 iex> λand = fn left, right -> left.(right, left) end
 #Function<13.91303403/2 in :erl_eval.expr/5>
 ```
 
-Let's use pin operator and pattern matching to show that behaviour of `λand` function is correct:
+Let's use pin operator and pattern matching to show that behaviour of `λand` function is correct (remember, we still can't use normal boolean type, because we imagined that it just not exists):
 
 ```elixir
 iex> ^λtrue = λand.(λtrue, λtrue)
@@ -137,7 +138,7 @@ As you can see, if we know the **behaviour** of the thing - we can express it in
 
 ##  Usage (simple example)
 
-This library is based on idea described above. It just provides syntactic sugar to express new data type in terms of λ-expressions and create new things which Elixir don't have by default. Let's implement simple λ-type [Stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) which will have just `push` and `pop` methods:
+This library is based on idea described above. It just provides syntactic sugar to express new types in terms of λ-expressions to create new things which Elixir don't have by default. For simplicity, I'll just name these new kind of types as **λ-types**. Let's implement simple λ-type [Stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) which will have just `push` and `pop` methods:
 
 ```elixir
 defmodule Stack do
@@ -159,7 +160,7 @@ end
 `defcalculus` is syntactic sugar, a macro which accepts 2 arguments:
 
 - internal representation of your data type (parameter `state` in this example)
-- `do` block of code, any amount of clauses which describe **behaviour** of data type
+- `do` block of code, any amount of clauses which describe **behaviour** of data type against incoming data
 
 Every clause of `do` block returns `calculus` expression which have 2 parameters
 
