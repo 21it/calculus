@@ -14,7 +14,7 @@ First statement:
 
 - **default data constructor `%URI{}` is always public**
 
-Indeed, nothing stops you to write in any place or your program something like this:
+You can say "hey, this is not a constructor function, it a syntactic sugar for literal term". But anyway, this is **expression** and value of this expression is Elixir struct with type `URI`. For simplicity I'll call this thing as "default constructor". And this default constructor is always public. Indeed, you can write in any place or your program something like this:
 
 ```elixir
 iex> uri = %URI{host: :BANG}
@@ -75,7 +75,7 @@ Third statement:
 
 - **all fields of `URI` instance are mutable (in functional meaning)**
 
-This sentence looks weird because all Erlang/Elixir terms are immutable, isn't it? I will explain what I meant by example:
+This sentence looks weird because all Erlang/Elixir terms are immutable, right? I will explain what I meant by example:
 
 ```elixir
 iex> uri = URI.parse("https://hello.world")
@@ -92,7 +92,48 @@ Let's consider what happened here:
 
 This means that even if smart constructor has been used to create proper value of the type `URI`, we can just **HOPE** that this proper value will not be corrupted later.
 
-We have 3 statements about Elixir structures. Don’t you think that we rely on **HOPE** too much when we are using structures? As we know, `Hope is Not a Strategy ©`. What if I will say you that we can have `real smart constructors`, `real private fields`, `real immutable fields` and many other fun things almost for free? And we can do it without any relatively expensive stuff like processes? Well, we really can, and all that we need - just one simple thing. It is lambda function.
+We have 3 statements about Elixir structures. Don’t you think that we rely on **HOPE** too much when we are using structures? As we know, `Hope is Not a Strategy ©`. What if I will say you that we can have `real smart constructors`, `real private fields`, `real immutable fields` and many other fun things almost for free? And we can do it without any relatively expensive stuff like processes? Well, we really can, and all that we need - just one simple thing. It is λ-expression.
+
+## Idea
+
+Mathematical theory says us that λ-calculus is Turing complete, it is a universal model of computation that can be used to simulate any Turing machine. This statement means that through λ-expressions we can express things which we don't have in our language by default.
+For example, let's imagine that we don't have boolean type in Elixir (it's not so far from the truth). To implement boolean type from scratch, we should understand real nature of boolean type. What is the value of boolean type? This is the choice between 2 possibilities. And we have only 2 values of this type (true and false). So we should have 2 λ-expressions which are representing all possible choices between 2 possibilities. There is only one way how we can express this (we can swap λtrue and λfalse definitions, but it will be still isomorphic):
+
+```elixir
+iex> λtrue = fn x, _ -> x end
+#Function<13.91303403/2 in :erl_eval.expr/5>
+iex> λfalse = fn _, x -> x end
+#Function<13.91303403/2 in :erl_eval.expr/5>
+```
+
+Now we have definitions of all `λbool` type values without having `bool` type itself, let's implement `λand` function to show that it will behave in our λ-world the same way like `and` behaves in normal world. First of all, let's write signatures of both functions
+
+```elixir
+and(bool, bool)    :: bool
+λand(λbool, λbool) :: λbool
+```
+
+As you can see, they are isomorphic. According type specifications, knowledge about boolean logic and our definition of `λbool`, function `λand` will look like:
+
+```elixir
+iex> λand = fn left, right -> left.(right, left) end
+#Function<13.91303403/2 in :erl_eval.expr/5>
+```
+
+Let's use pin operator and pattern matching to show that behaviour of `λand` function is correct:
+
+```elixir
+iex> ^λtrue = λand.(λtrue, λtrue)
+#Function<13.91303403/2 in :erl_eval.expr/5>
+iex> ^λfalse = λand.(λfalse, λtrue)
+#Function<13.91303403/2 in :erl_eval.expr/5>
+iex> ^λfalse = λand.(λtrue, λfalse)
+#Function<13.91303403/2 in :erl_eval.expr/5>
+iex> ^λfalse = λand.(λfalse, λfalse)
+#Function<13.91303403/2 in :erl_eval.expr/5>
+```
+
+As you can see, if we know the **behaviour** of the thing - we can express it in terms of λ-expressions without having this thing at all.
 
 ## Installation
 
