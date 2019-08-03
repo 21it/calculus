@@ -133,7 +133,7 @@ iex> ^λfalse = λand.(λfalse, λfalse)
 #Function<13.91303403/2 in :erl_eval.expr/5>
 ```
 
-As you can see, if we know the **behaviour** of the thing - we can express it in terms of λ-expressions without having this thing at all.
+As you can see, if we know the **behaviour** of the thing - we can express it in terms of λ-expressions and create **isomorphic** λ-thing from the void. If we can **describe** thing - it exists (at least in λ-world).
 
 ## Installation
 

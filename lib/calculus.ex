@@ -2,7 +2,12 @@ defmodule Calculus do
   @moduledoc """
   Proof of concept inspired by church encoding.
 
-  Example of "Calculus" data type `User` have:
+  Example of λ-type `Stack` have:
+
+  - `push/2` method
+  - `pop/1` method
+
+  Example of λ-type `User` have:
 
   - mutable `name` field (`get_name/1`, `set_name/2` methods)
   - immutable `id` field (`get_id/1` method)
@@ -11,6 +16,19 @@ defmodule Calculus do
   ## Example
 
   ```
+  iex> s0 = Stack.new([1, 2])
+  iex> s1 = s0 |> Stack.push(0)
+  iex> s2 = s1 |> Stack.pop()
+  iex> s2 |> Stack.return()
+  {:ok, 0}
+  iex> s3 = s2 |> Stack.pop() |> Stack.pop
+  iex> s3 |> Stack.return
+  {:ok, 2}
+  iex> s3 |> Stack.pop() |> Stack.return
+  {:error, :empty_stack}
+  iex> Enum.all?([s0, s1, s2, s3], &is_function/1)
+  true
+
   iex> u0 = User.new(id: 1, name: "Jessy")
   iex> 1 = User.get_id(u0)
   iex> "Jessy" = User.get_name(u0)
@@ -24,7 +42,6 @@ defmodule Calculus do
   iex> u4 = User.withdraw(u3, 51)
   iex> :insufficient_funds = User.return(u4)
   iex> Enum.all?([u0, u1, u2, u3, u4], &is_function/1)
-  iex> true
   true
 
   iex> User.new(id: 1, name: "Jessy") |> User.deposit(100) |> User.set_name("Bob") |> User.withdraw(50) |> User.get_name
@@ -127,6 +144,10 @@ defmodule Calculus do
         end
       end
 
+      @doc """
+      - Accepts value of `#{inspect(__MODULE__)}` λ-type
+      - Returns result of the latest called method of this value
+      """
       def return(it) do
         unquote(__MODULE__).return(it)
       end
