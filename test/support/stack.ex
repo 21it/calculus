@@ -12,7 +12,7 @@ defmodule Stack do
       end
   end
 
-  def new(state) when is_list(state), do: construct(state)
+  def new(state \\ []) when is_list(state), do: construct(state)
   def push(it, x), do: eval(it, {:push, x})
   def pop(it), do: eval(it, :pop)
 end
