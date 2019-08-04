@@ -160,12 +160,12 @@ end
 `defcalculus` is syntactic sugar, a macro which accepts 2 arguments:
 
 - internal representation of your data type (parameter `state` in this example)
-- `do` block of code, any amount of clauses which describe **behaviour** of data type against incoming data
+- `do` block of code, any amount of clauses which describe behaviour of data type against incoming data. For simplicity let's name these clauses as **methods**.
 
-Every clause of `do` block returns `calculus` expression which have 2 parameters
+Every method returns `calculus` expression which have 2 parameters
 
-- `state` is updated internal state of data type
-- `return` is term which is sent to outer world as result of the method
+- `state` is updated internal state of λ-type
+- `return` is term which is sent to outer world as result of the method call
 
 Let's run this code and check what do we have for our `Stack` λ-type (type "Stack." in iex and press "tab")
 

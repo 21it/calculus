@@ -28,6 +28,8 @@ defmodule Calculus do
   {:error, :empty_stack}
   iex> Enum.all?([s0, s1, s2, s3], &is_function/1)
   true
+  iex> Enum.all?([s0, s1, s2, s3], &Stack.is?/1)
+  true
 
   iex> u0 = User.new(id: 1, name: "Jessy")
   iex> 1 = User.get_id(u0)
@@ -43,16 +45,18 @@ defmodule Calculus do
   iex> :insufficient_funds = User.return(u4)
   iex> Enum.all?([u0, u1, u2, u3, u4], &is_function/1)
   true
+  iex> Enum.all?([u0, u1, u2, u3, u4], &User.is?/1)
+  true
 
   iex> User.new(id: 1, name: "Jessy") |> User.deposit(100) |> User.set_name("Bob") |> User.withdraw(50) |> User.get_name
   "Bob"
 
   iex> u = User.new(id: 1, name: "Jessy")
   iex> u.(:get_name, :fake_security_key)
-  ** (RuntimeError) For instance of the type Elixir.Calculus got unsupported CMD=:get_name with SECURITY_KEY=:fake_security_key
+  ** (RuntimeError) For instance of the type Calculus got unsupported METHOD=:get_name with SECURITY_KEY=:fake_security_key
 
   iex> User.get_name(&({&2, &1}))
-  ** (RuntimeError) Instance of the type Elixir.User can't be created in other module Elixir.CalculusTest
+  ** (RuntimeError) Instance of the type User can't be created in other module CalculusTest
   ```
   """
 
@@ -79,13 +83,16 @@ defmodule Calculus do
   end
 
   defmacro defcalculus(quoted_state, do: raw_eval_clauses) do
-    default_eval_clause =
+    pre_defined_eval_clauses =
       quote location: :keep do
-        cmd, security_key ->
+        :is?, @security_key ->
+          calculus(state: state, return: true)
+
+        method, security_key ->
           raise(
-            "For instance of the type #{__MODULE__} got unsupported CMD=#{inspect(cmd)} with SECURITY_KEY=#{
-              inspect(security_key)
-            }"
+            "For instance of the type #{inspect(__MODULE__)} got unsupported METHOD=#{
+              inspect(method)
+            } with SECURITY_KEY=#{inspect(security_key)}"
           )
       end
 
@@ -96,12 +103,14 @@ defmodule Calculus do
         [_ | _] -> raw_eval_clauses
       end
       |> Enum.map(&add_security_key/1)
-      |> Enum.concat(default_eval_clause)
+      |> Enum.concat(pre_defined_eval_clauses)
 
     eval_fn = {:fn, [], eval_clauses}
 
     quote location: :keep do
       @security_key 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom()
+
+      @opaque t :: __MODULE__.t()
 
       defmacrop calculus(state: state, return: return) do
         cmod = unquote(__MODULE__)
@@ -126,20 +135,26 @@ defmodule Calculus do
         |> raise
       end
 
-      defp eval(it, cmd) do
+      defp eval(it, method) do
         case Function.info(it, :module) do
           {:module, __MODULE__} ->
-            cs = it.(cmd, @security_key)
-            unquote(quoted_state) = unquote(__MODULE__).state(cs)
+            #
+            # TODO : test that "state" can not be overriden in "quoted_state" expression
+            #
+            cs = it.(method, @security_key)
+            state = unquote(__MODULE__).state(cs)
+            unquote(quoted_state) = state
             unquote(__MODULE__).new(unquote(eval_fn), unquote(__MODULE__).return(cs))
 
           {:module, unquote(__MODULE__)} ->
             it
             |> unquote(__MODULE__).state()
-            |> eval(cmd)
+            |> eval(method)
 
           {:module, module} ->
-            "Instance of the type #{__MODULE__} can't be created in other module #{module}"
+            "Instance of the type #{inspect(__MODULE__)} can't be created in other module #{
+              inspect(module)
+            }"
             |> raise
         end
       end
@@ -148,8 +163,20 @@ defmodule Calculus do
       - Accepts value of `#{inspect(__MODULE__)}` λ-type
       - Returns result of the latest called method of this value
       """
+      @spec return(t) :: term
       def return(it) do
         unquote(__MODULE__).return(it)
+      end
+
+      @spec is?(t) :: boolean
+      def is?(it) do
+        try do
+          it
+          |> eval(:is?)
+          |> return()
+        rescue
+          _ -> false
+        end
       end
 
       defmacrop construct(state) do
@@ -178,13 +205,13 @@ defmodule Calculus do
 
   @security_key 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom()
 
-  defp eval(it0, cmd) do
+  defp eval(it0, method) do
     case Function.info(it0, :module) do
       {:module, __MODULE__} ->
         calculus(
           state: calculus(state: state1, return: return1) = state0,
           return: return0
-        ) = it0.(cmd, @security_key)
+        ) = it0.(method, @security_key)
 
         it1 = fn
           :state, @security_key ->
@@ -193,18 +220,20 @@ defmodule Calculus do
           :return, @security_key ->
             calculus(state: state0, return: return1)
 
-          cmd, security_key ->
+          method, security_key ->
             raise(
-              "For instance of the type #{__MODULE__} got unsupported CMD=#{inspect(cmd)} with SECURITY_KEY=#{
-                inspect(security_key)
-              }"
+              "For instance of the type #{inspect(__MODULE__)} got unsupported METHOD=#{
+                inspect(method)
+              } with SECURITY_KEY=#{inspect(security_key)}"
             )
         end
 
         calculus(state: it1, return: return0)
 
       {:module, module} ->
-        "Instance of the type #{__MODULE__} can't be created in other module #{module}"
+        "Instance of the type #{inspect(__MODULE__)} can't be created in other module #{
+          inspect(module)
+        }"
         |> raise
     end
   end
