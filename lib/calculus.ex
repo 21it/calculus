@@ -151,6 +151,7 @@ defmodule Calculus do
 
             case method do
               :return -> return
+              :is? -> return
               _ -> unquote(eval_fn)
             end
 
@@ -178,9 +179,7 @@ defmodule Calculus do
       @spec is?(term) :: boolean
       def is?(it) do
         try do
-          it
-          |> eval(:is?)
-          |> return()
+          eval(it, :is?)
         rescue
           _ -> false
         end
