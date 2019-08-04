@@ -12,7 +12,12 @@ defmodule Stack do
       end
   end
 
+  @spec new(list) :: t
   def new(state \\ []) when is_list(state), do: construct(state)
+
+  @spec push(t, term) :: t
   def push(it, x), do: eval(it, {:push, x})
+
+  @spec pop(t) :: t
   def pop(it), do: eval(it, :pop)
 end
