@@ -163,12 +163,16 @@ defmodule Calculus do
       - Accepts value of `#{inspect(__MODULE__)}` λ-type
       - Returns result of the latest called method of this value
       """
-      @spec return(t) :: term
+      @spec return(__MODULE__.t()) :: term
       def return(it) do
         unquote(__MODULE__).return(it)
       end
 
-      @spec is?(t) :: boolean
+      @doc """
+      - Accepts any term
+      - Returns `true` if term is value of `#{inspect(__MODULE__)}` λ-type, otherwise returns `false`
+      """
+      @spec is?(term) :: boolean
       def is?(it) do
         try do
           it
