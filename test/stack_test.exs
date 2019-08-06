@@ -4,16 +4,16 @@ defmodule StackTest do
   setup do
     {
       :ok,
-      %{stack: Stack.new([1, 2, 3])}
+      %{x: Stack.new([1, 2, 3])}
     }
   end
 
-  test "Stack.is?/1 default method", %{stack: x} do
+  test "Stack.is?/1 default method", %{x: x} do
     assert Stack.is?(x)
     refute Stack.is?([1, 2, 3])
   end
 
-  test "Stack.return/1 default method", %{stack: x} do
+  test "Stack.return/1 default method", %{x: x} do
     assert :ok == Stack.return(x)
   end
 
@@ -31,7 +31,7 @@ defmodule StackTest do
                  end
   end
 
-  test "Stack.push/2 method", %{stack: x0} do
+  test "Stack.push/2 method", %{x: x0} do
     x1 = Stack.push(x0, 99)
     assert Stack.is?(x1)
     assert is_function(x1, 2)
@@ -39,7 +39,7 @@ defmodule StackTest do
     assert x1 != x0
   end
 
-  test "Stack.pop/1 method", %{stack: x0} do
+  test "Stack.pop/1 method", %{x: x0} do
     x1 = Stack.pop(x0)
     assert Stack.is?(x1)
     assert is_function(x1, 2)
@@ -47,7 +47,7 @@ defmodule StackTest do
     assert x1 != x0
   end
 
-  test "Can compose methods", %{stack: x0} do
+  test "Can compose methods", %{x: x0} do
     x1 =
       x0
       |> Stack.pop()
@@ -60,7 +60,7 @@ defmodule StackTest do
     assert x1 != x0
   end
 
-  test "Can compose methods with return", %{stack: x} do
+  test "Can compose methods with return", %{x: x} do
     assert {:ok, 99} ==
              x
              |> Stack.push(99)
@@ -68,7 +68,7 @@ defmodule StackTest do
              |> Stack.return()
   end
 
-  test "Can not pop empty stack", %{stack: x0} do
+  test "Can not pop empty stack", %{x: x0} do
     x1 =
       x0
       |> Stack.pop()
@@ -78,5 +78,21 @@ defmodule StackTest do
 
     assert {:error, :empty_stack} == Stack.return(x1)
     assert x1 == Stack.pop(x1)
+  end
+
+  test "Value encapsulation", %{x: x} do
+    assert_raise RuntimeError,
+                 "For value of the type Stack got unsupported METHOD=:pop with SECURITY_KEY=nil",
+                 fn ->
+                   x.(:pop, nil)
+                 end
+  end
+
+  test "Module encapsulation" do
+    assert_raise RuntimeError,
+                 "Value of the type Stack can't be created in other module StackTest",
+                 fn ->
+                   Stack.return(&{&1, &2})
+                 end
   end
 end

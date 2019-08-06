@@ -49,12 +49,25 @@ defmodule User do
   @type id :: pos_integer
   @type name :: String.t()
 
+  defmacrop with_valid_name(name, do: code) do
+    quote location: :keep do
+      name = unquote(name)
+
+      ~r/^[A-Z][a-z]+$/
+      |> Regex.match?(name)
+      |> case do
+        true -> unquote(code)
+        false -> raise("invalid User name #{inspect(name)}")
+      end
+    end
+  end
+
   @spec new(id: id, name: name) :: t
   def new(id: id, name: name) when is_integer(id) and id > 0 and is_binary(name) do
-    true = String.valid?(name)
-
-    user(id: id, name: name, balance: 0)
-    |> construct()
+    with_valid_name name do
+      user(id: id, name: name, balance: 0)
+      |> construct()
+    end
   end
 
   @spec get_name(t) :: name
@@ -66,8 +79,10 @@ defmodule User do
 
   @spec set_name(t, name) :: t
   def set_name(it, name) when is_binary(name) do
-    it
-    |> eval({:set_name, name})
+    with_valid_name name do
+      it
+      |> eval({:set_name, name})
+    end
   end
 
   @spec get_id(t) :: id
