@@ -8,12 +8,12 @@ defmodule StackTest do
     }
   end
 
-  test "Stack.is?/1 method", %{stack: x} do
+  test "Stack.is?/1 default method", %{stack: x} do
     assert Stack.is?(x)
     refute Stack.is?([1, 2, 3])
   end
 
-  test "Stack.return/1 method", %{stack: x} do
+  test "Stack.return/1 default method", %{stack: x} do
     assert :ok == Stack.return(x)
   end
 
@@ -47,7 +47,7 @@ defmodule StackTest do
     assert x1 != x0
   end
 
-  test "Can chain methods", %{stack: x0} do
+  test "Can compose methods", %{stack: x0} do
     x1 =
       x0
       |> Stack.pop()
@@ -60,7 +60,7 @@ defmodule StackTest do
     assert x1 != x0
   end
 
-  test "Can chain methods to return", %{stack: x} do
+  test "Can compose methods with return", %{stack: x} do
     assert {:ok, 99} ==
              x
              |> Stack.push(99)
