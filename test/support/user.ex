@@ -2,6 +2,19 @@ defmodule User do
   use Calculus
   require Record
 
+  @moduledoc """
+  OOP-like `User` data type example.
+
+  Internal representation of the `state` is record,
+  but it's completely hidden inside this module.
+
+  This data type have:
+
+  - public mutable `name` field (`get_name/1`, `set_name/2` methods)
+  - protected immutable `id` field (`get_id/1` method)
+  - private `balance` field (used internally in `deposit/2` and `withdraw/2` methods)
+  """
+
   Record.defrecordp(:user,
     id: nil,
     name: nil,

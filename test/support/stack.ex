@@ -1,6 +1,18 @@
 defmodule Stack do
   use Calculus
 
+  @moduledoc """
+  Simple `Stack` data type example.
+
+  Internal representation of the `state` is list,
+  but it's completely hidden inside this module.
+
+  This data type have:
+
+  - `push/2` method
+  - `pop/1` method
+  """
+
   defcalculus state do
     {:push, x} ->
       calculus(state: [x | state], return: :ok)

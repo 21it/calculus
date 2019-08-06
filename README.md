@@ -6,6 +6,17 @@ This package introduces another way to define a new data type and safe interface
 
 <img src="priv/img/logo.png" width="300"/>
 
+## Warning
+
+This pretty long readme contains detailed information about the problem which is the cause of this library, also description of idea which is foundation of this library and step-by-step example. I strongly recommend to read it, but if you are sure that you don't need these details and you can figure out everything from concrete examples, you can find them here:
+
+- Simple `Stack` data type example
+  - [code](https://github.com/timCF/calculus/blob/master/test/support/stack.ex)
+  - [tests](https://github.com/timCF/calculus/blob/master/test/stack_test.exs)
+- OOP-like `User` data type example (smart constructors, setters, getters, methods)
+  - [code](https://github.com/timCF/calculus/blob/master/test/support/user.ex)
+  - [tests](https://github.com/timCF/calculus/blob/master/test/user_test.exs)
+
 ## Problem
 
 First of all, let's figure out what's wrong with Elixir structs. For instance let's consider `URI` data type which is part of standard library (Elixir 1.9.1).
