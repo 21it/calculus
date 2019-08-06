@@ -18,7 +18,7 @@ def deps do
 end
 ```
 
-## Warning
+## Readme!
 
 This pretty long readme contains detailed information about the problem which is the cause of this library, also description of idea which is foundation of this library and step-by-step example. I strongly recommend to read it, but if you are sure that you don't need these details and you can figure out everything from concrete examples, you can find them here:
 
@@ -399,3 +399,7 @@ I have a plans about further performance optimizations.
   ```
 
   It's possible to read internal state using this function, but it's still impossible to create new corrupted value of λ-type based on this internal state. So all immutable and private data is still really immutable.
+
+## Conclusion
+
+Lambda calculus is extremely powerful way to extend type system of Erlang and Elixir. This small library (~150 lines of code) already gives foundation for fantastic things. Do you want OOP-like DSL to define data types in terms of private, public, immutable fields, constructors and methods? Take couple quote-unquote expressions and just do it. Do you want smart constructors and abstract data types? It's here. Do you want monads, functors or applicatives like in Haskell? Why not? We have real encapsulation here and if our definition of type is valid, then there are guarantees that any values of this type are always valid as well. With lambda calculus there are no limits in programming languages, there is only one limit - our imagination.
