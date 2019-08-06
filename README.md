@@ -6,14 +6,26 @@ This package introduces another way to define a new data type and safe interface
 
 <img src="priv/img/logo.png" width="300"/>
 
+## Installation
+
+The package can be installed by adding `calculus` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:calculus, "~> 0.1.0"}
+  ]
+end
+```
+
 ## Warning
 
 This pretty long readme contains detailed information about the problem which is the cause of this library, also description of idea which is foundation of this library and step-by-step example. I strongly recommend to read it, but if you are sure that you don't need these details and you can figure out everything from concrete examples, you can find them here:
 
-- Simple `Stack` data type example
+- Simple `Stack` data type example (smart constructor, push and pop methods)
   - [code](https://github.com/timCF/calculus/blob/master/test/support/stack.ex)
   - [tests](https://github.com/timCF/calculus/blob/master/test/stack_test.exs)
-- OOP-like `User` data type example (smart constructors, setters, getters, methods)
+- OOP-like `User` data type example (smart constructor, setters, getters, methods)
   - [code](https://github.com/timCF/calculus/blob/master/test/support/user.ex)
   - [tests](https://github.com/timCF/calculus/blob/master/test/user_test.exs)
 
@@ -311,16 +323,4 @@ iex> Stack.return(s4)
 {:error, :empty_stack}
 iex> s4 == Stack.pop(s4)
 true
-```
-
-## Installation
-
-The package can be installed by adding `calculus` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:calculus, "~> 0.1.0"}
-  ]
-end
 ```
