@@ -23,36 +23,36 @@ defmodule Calculus.GetterBench do
     }
   end
 
-  bench "getter, 1 field, struct" do
+  bench "struct (1 field size)" do
     {it, _, _} = bench_context |> elem(0)
     %Field1{f: f} = it
     f
   end
 
-  bench "getter, 1 field, record" do
+  bench "record (1 field size)" do
     {_, it, _} = bench_context |> elem(0)
     Field1.t(f: f) = it
     f
   end
 
-  bench "getter, 1 field, l-type" do
+  bench "l-type (1 field size)" do
     {_, _, it} = bench_context |> elem(0)
     Field1.calculus_get(it)
   end
 
-  bench "getter, 15 field, struct" do
+  bench "struct (15 fields size)" do
     {it, _, _} = bench_context |> elem(1)
     %Field15{f: f} = it
     f
   end
 
-  bench "getter, 15 field, record" do
+  bench "record (15 fields size)" do
     {_, it, _} = bench_context |> elem(1)
     Field15.t(f: f) = it
     f
   end
 
-  bench "getter, 15 field, l-type" do
+  bench "l-type (15 fields size)" do
     {_, _, it} = bench_context |> elem(1)
     Field15.calculus_get(it)
   end

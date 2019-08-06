@@ -331,7 +331,7 @@ As you can see, our `Stack` λ-type works as normal stack should work. All metho
 
 - **If developer of λ-type `T` implements all smart constructors and methods for `T` properly (validations of external arguments etc), then value of λ-type `T` is always valid in ANY place of ANY program.**
 
-We are not relying on **hope** anymore! Smart constructors, smart methods and encapsulation is much better strategy then just hope, isn't it? But maybe somebody can say: "hey, real value of λ-type is just a function, so we can call it and access internal state without methods, we can create new functions and corrupt existing values". Let's try it:
+We are not relying on **hope** anymore! Smart constructors, smart methods and encapsulation is much better strategy then just hope, isn't it? But maybe somebody can say: "hey, real type of λ-type value is just a function, so we can call it and access internal state without methods, we can create new functions and corrupt existing values". Let's try it:
 
 ```elixir
 iex> s0 = Stack.new([1, 2, 3])
@@ -345,3 +345,40 @@ iex> Stack.return(s1)
 ```
 
 Our attempts to hack `Stack` failed. This library uses some pretty simple tricks which are giving guarantees that value of λ-type can be **created** or **evaluated** only inside the module where λ-type itself was defined.
+
+## Compromises
+
+Lambda types are inferior in performance to classical data types like records or structs. In average:
+
+- λ-type constructors and setters ~ `2` times slower then default constructors and setters for structs
+- λ-type getters ~ `6 - 12` times slower then pattern mathcing on structs (but this is still pretty nice performance)
+
+I have very basic benchmarks for constructors, setters and getters of isomorphic `records`, `structs` and `λ-types`. You can run benchmarks with `mix bench` command in terminal. Here are results I got on my mac mini:
+
+
+| Constructor             |            |
+|-------------------------|------------|
+| record (1 field size)   | 0.02 µs/op |
+| struct (1 field size)   | 0.03 µs/op |
+| record (15 fields size) | 0.05 µs/op |
+| struct (15 fields size) | 0.08 µs/op |
+| λ-type (1 field size)   | 0.11 µs/op |
+| λ-type (15 fields size) | 0.14 µs/op |
+
+| Setter                  |            |
+|-------------------------|------------|
+| record (1 field size)   | 0.03 µs/op |
+| struct (1 field size)   | 0.04 µs/op |
+| record (15 fields size) | 0.05 µs/op |
+| struct (15 fields size) | 0.05 µs/op |
+| λ-type (1 field size)   | 0.09 µs/op |
+| λ-type (15 fields size) | 0.11 µs/op |
+
+| Getter                  |            |
+|-------------------------|------------|
+| record (1 field size)   | 0.01 µs/op |
+| record (15 fields size) | 0.01 µs/op |
+| struct (1 field size)   | 0.01 µs/op |
+| struct (15 fields size) | 0.02 µs/op |
+| λ-type (1 field size)   | 0.12 µs/op |
+| λ-type (15 fields size) | 0.12 µs/op |

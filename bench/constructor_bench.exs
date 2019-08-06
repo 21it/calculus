@@ -5,27 +5,27 @@ defmodule Calculus.ConstructorBench do
 
   @value 0
 
-  bench "constructor, 1 field, struct" do
+  bench "struct (1 field size)" do
     Field1.struct_new(@value)
   end
 
-  bench "constructor, 1 field, record" do
+  bench "record (1 field size)" do
     Field1.record_new(@value)
   end
 
-  bench "constructor, 1 field, l-type" do
+  bench "l-type (1 field size)" do
     Field1.calculus_new(@value)
   end
 
-  bench "constructor, 15 field, struct" do
+  bench "struct (15 fields size)" do
     Field15.struct_new(@value)
   end
 
-  bench "constructor, 15 field, record" do
+  bench "record (15 fields size)" do
     Field15.record_new(@value)
   end
 
-  bench "constructor, 15 field, l-type" do
+  bench "l-type (15 fields size)" do
     Field15.calculus_new(@value)
   end
 end
