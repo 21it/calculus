@@ -305,6 +305,8 @@ This `eval` expression just takes method from normal world and evaluates it in �
 Now we finally have full definition of our `Stack` λ-type and can play around with smart constructors and methods:
 
 ```elixir
+iex> Stack.
+is?/1       new/0       new/1       pop/1       push/2      return/1
 iex> s0 = Stack.new([1, 2, 3])
 #Function<1.41704973/2 in Calculus.eval/2>
 iex> s1 = Stack.push(s0, 99)
@@ -324,3 +326,22 @@ iex> Stack.return(s4)
 iex> s4 == Stack.pop(s4)
 true
 ```
+
+As you can see, our `Stack` λ-type works as normal stack should work. All methods and constructors are explicit and 100% controlled by developer (except special `is?` and `return` methods). And we don't have direct access to internal state (which is list in our case). This thing is called encapsulation. And this thing leads to a very interesting statement:
+
+- **If developer of λ-type `T` implements all smart constructors and methods for `T` properly (validations of external arguments etc), then value of λ-type `T` is always valid in ANY place of ANY program.**
+
+We are not relying on **hope** anymore! Smart constructors, smart methods and encapsulation is much better strategy then just hope, isn't it? But maybe somebody can say: "hey, real value of λ-type is just a function, so we can call it and access internal state without methods, we can create new functions and corrupt existing values". Let's try it:
+
+```elixir
+iex> s0 = Stack.new([1, 2, 3])
+#Function<1.75866925/2 in Stack.eval/2>
+iex> s0.(:pop, nil)
+** (RuntimeError) For value of the type Stack got unsupported METHOD=:pop with SECURITY_KEY=nil
+iex> s1 = &({&1, &2})
+#Function<13.91303403/2 in :erl_eval.expr/5>
+iex> Stack.return(s1)
+** (RuntimeError) Value of the type Stack can not be created in other module :erl_eval
+```
+
+Our attempts to hack `Stack` failed. This library uses some pretty simple tricks which are giving guarantees that value of λ-type can be **created** or **evaluated** only inside the module where λ-type itself was defined.
