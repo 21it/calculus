@@ -346,12 +346,12 @@ iex> Stack.return(s1)
 
 Our attempts to hack `Stack` failed. This library uses some pretty simple tricks which are giving guarantees that value of λ-type can be **created** or **evaluated** only inside the module where λ-type itself was defined.
 
-## Compromises
+## Known issues
 
-Lambda types are inferior in performance to classical data types like records or structs. In average:
+1) Lambda types are inferior in performance to classical data types like records or structs. In average:
 
 - λ-type constructors and setters ~ `2` times slower then default constructors and setters for structs
-- λ-type getters ~ `6 - 12` times slower then pattern mathcing on structs (but this is still pretty nice performance)
+- λ-type getters ~ `6 - 12` times slower then pattern matching on structs (but this is still pretty nice performance)
 
 I have very basic benchmarks for constructors, setters and getters of isomorphic `records`, `structs` and `λ-types`. You can run benchmarks with `mix bench` command in terminal. Here are results I got on my mac mini:
 
@@ -382,3 +382,20 @@ I have very basic benchmarks for constructors, setters and getters of isomorphic
 | struct (15 fields size) | 0.02 µs/op |
 | λ-type (1 field size)   | 0.12 µs/op |
 | λ-type (15 fields size) | 0.12 µs/op |
+
+I have a plans about further performance optimizations.
+
+2) We can't use pattern matching to access even public fields of values of λ-types because formally they are just functions. I don't think it can be fixed in general.
+
+3) At the moment we can't properly use Elixir protocols with values of λ-types (because of the same reason). I have couple ideas about it and maybe will fix it.
+
+4) Internal state of value of λ-type is vulnerable for reading (not writing!) through `Function.info/2` core function. At the moment I don't know how to fix it:
+
+```elixir
+iex> stack = Stack.new([1, 2, 3])
+#Function<1.90529338/2 in Stack.eval/2>
+iex> Function.info(stack, :env)
+{:env, [{[1, 2, 3], :ok}, [1, 2, 3]]}
+```
+
+It's possible to read internal state using this function, but it's still impossible to create new corrupted value of λ-type based on this internal state. So all immutable and private data is still really immutable.
