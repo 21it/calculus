@@ -4,15 +4,49 @@ defmodule Calculus.MixProject do
   def project do
     [
       app: :calculus,
-      version: "0.1.0",
+      version: "VERSION" |> File.read!() |> String.trim(),
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
+      aliases: aliases(),
+      consolidate_protocols: Mix.env() in [:prod, :bench],
+      # excoveralls
+      test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
-        bench: :bench
+        bench: :bench,
+        coveralls: :test,
+        "coveralls.travis": :test,
+        "coveralls.circle": :test,
+        "coveralls.semaphore": :test,
+        "coveralls.post": :test,
+        "coveralls.detail": :test,
+        "coveralls.html": :test
       ],
-      consolidate_protocols: Mix.env() in [:prod, :bench]
+      # dialyxir
+      dialyzer: [
+        ignore_warnings: ".dialyzer_ignore",
+        plt_add_apps: [
+          :mix,
+          :ex_unit
+        ]
+      ],
+      # ex_doc
+      name: "Calculus",
+      source_url: "https://github.com/timCF/calculus",
+      homepage_url: "https://github.com/timCF/calculus",
+      docs: [main: "readme", extras: ["README.md"]],
+      # hex.pm stuff
+      description: "Real smart constructors, real private and immutable fields for Elixir data types. Inspired by Alonzo Church.",
+      package: [
+        licenses: ["Apache 2.0"],
+        files: ["lib", "priv", "mix.exs", "README*", "VERSION*"],
+        maintainers: ["ILJA TKACHUK"],
+        links: %{
+          "GitHub" => "https://github.com/timCF/calculus",
+          "Author's home page" => "https://itkach.uk/"
+        }
+      ]
     ]
   end
 
@@ -26,9 +60,19 @@ defmodule Calculus.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # development tools
+      {:excoveralls, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.19", only: [:dev, :test], runtime: false},
+      {:credo, "~> 0.9", only: [:dev, :test], runtime: false},
+      {:boilex, "~> 0.2", only: [:dev, :test], runtime: false},
       {:benchfella, "~> 0.3.5", only: :bench, runtime: false}
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+    ]
+  end
+
+  defp aliases do
+    [
+      docs: ["docs", "cmd mkdir -p doc/priv/img/", "cmd cp -R priv/img/ doc/priv/img/", "docs"]
     ]
   end
 

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+arguments=( "$@" )
+variables=( "${arguments[@]:1}" )
+message="${arguments[0]}"
+
+for varname in "${variables[@]}"
+do
+  if [[ -z "${!varname}" ]]; then
+      echo "\nplease set variable $varname $message\n"
+      exit 1
+  fi
+done

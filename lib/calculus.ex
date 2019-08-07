@@ -53,9 +53,9 @@ defmodule Calculus do
       quote location: :keep do
         method, security_key ->
           raise(
-            "For value of the type #{inspect(__MODULE__)} got unsupported METHOD=#{
-              inspect(method)
-            } with SECURITY_KEY=#{inspect(security_key)}"
+            "For value of the type #{inspect(__MODULE__)} got unsupported METHOD=#{inspect(method)} with SECURITY_KEY=#{
+              inspect(security_key)
+            }"
           )
       end
 
@@ -83,9 +83,7 @@ defmodule Calculus do
       end
 
       defmacrop calculus(some) do
-        "Calculus expression expect keyword list, example: calculus(state: foo, return: bar), but got term #{
-          inspect(some)
-        }"
+        "Calculus expression expect keyword list, example: calculus(state: foo, return: bar), but got term #{inspect(some)}"
         |> raise
       end
 
@@ -105,9 +103,7 @@ defmodule Calculus do
             end
 
           {:module, module} ->
-            "Value of the type #{inspect(__MODULE__)} can't be created in other module #{
-              inspect(module)
-            }"
+            "Value of the type #{inspect(__MODULE__)} can't be created in other module #{inspect(module)}"
             |> raise
         end
       end

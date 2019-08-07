@@ -1,0 +1,3 @@
+Any dialyzer's error output lines putted to this text file will be completely ignored by dialyzer's type checks.
+Please not abuse this file, type checks are VERY important.
+Use this file just in case of bad 3rd party auto-generated code.
