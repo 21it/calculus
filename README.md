@@ -37,7 +37,7 @@ First statement:
 
 - **default constructor `%URI{}` of data type `URI` is always public**
 
-You can say "hey, this is not a constructor function, it's a syntactic sugar for value, literal Elixir term". But anyway, this is **expression** and value of this expression is Elixir struct of `URI` type. For simplicity I'll call this thing as **default constructor**. And this default constructor is always public. Indeed, you can write in any place or your program something like this:
+Somebody can say "hey, this is not a constructor function, it's a syntactic sugar for value, literal Elixir term". But anyway, this is **expression** and value of this expression is Elixir struct of `URI` type. For simplicity I'll call this thing as **default constructor**. And this default constructor is always public. Indeed, you can write in any place or your program something like this:
 
 ```elixir
 iex> uri = %URI{host: :BANG}
@@ -345,6 +345,24 @@ iex> Stack.return(s1)
 ```
 
 Our attempts to hack `Stack` failed. This library uses some pretty simple tricks which are giving guarantees that value of λ-type can be **created** or **evaluated** only inside the module where λ-type itself was defined.
+
+## Another example
+
+As I mentioned before, there is another, more complex OOP-like example of [User](https://github.com/timCF/calculus/blob/master/test/support/user.ex) λ-type with some [tests](https://github.com/timCF/calculus/blob/master/test/user_test.exs). I'll put here few interesting statements about it:
+
+- It uses private `record` as internal representation. I think records are the best types for this purpose because
+
+  - records have nice syntax sugar for values and pattern matching (like structs)
+  - you can define multiple records in one module (unlike structs)
+  - record can be defined as **private** entity (unlike structs)
+  - records are extremely fast in most cases (faster than structs)
+
+
+- It implements concept of `private`, `immutable` and `public` fields through explicit setters, getters and methods
+
+- In some methods like getter `get_name`, utility function `return` is called inside the method. It completely make sense for getters because they never change internal state of λ-type value, so we can just `return` desired value to outer world for simplicity.
+
+It's cool example, check it out!
 
 ## Known issues
 
