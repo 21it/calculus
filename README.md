@@ -443,9 +443,7 @@ Lambda calculus is extremely powerful way to extend type system of Erlang and El
 - [Ulisses Almeida](https://github.com/ulissesalmeida) for debugging sessions
 - [Andrey Chernykh](https://github.com/madeinussr) for discussions about naming and design
 
-<footer style="display: table; text-align: center; margin-left: auto; margin-right: auto;">
-  <tt>
-    Made with ❤️ by
-    <a href="http://itkach.uk" target="_blank">Ilja Tkachuk</a>
-  </tt>
-</footer>
+<tt style="display: table; text-align: center; margin-left: auto; margin-right: auto;">
+  Made with ❤️ by
+  <a href="http://itkach.uk" target="_blank">Ilja Tkachuk</a>
+</tt>
