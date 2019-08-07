@@ -329,7 +329,7 @@ true
 
 As you can see, our `Stack` λ-type works as normal stack should work. All methods and constructors are explicit and 100% controlled by developer (except special `is?` and `return` methods). And we don't have direct access to internal state (which is list in our case). This thing is called encapsulation. And this thing leads to a very interesting statement:
 
-- **If developer of λ-type `T` implements all smart constructors and methods for `T` properly (validations of external arguments etc), then value of λ-type `T` is always valid in ANY place of ANY program.**
+- **If developer of λ-type `T` implements all smart constructors and methods for `T` properly (validations of external arguments etc), then value of λ-type `T` is always valid in ANY place of ANY program (where it exists).**
 
 We are not relying on **hope** anymore! Encapsulation, smart constructors and smart methods are much better strategy then just **hope**, isn't it? But maybe somebody can say: "hey, real type of λ-type value is just a function, so we can call it and access internal state without methods, we can create new functions and corrupt existing values". Let's try it:
 
@@ -415,7 +415,7 @@ I have a plans about further performance optimizations.
   {:env, [{[1, 2, 3], :ok}, [1, 2, 3]]}
   ```
 
-  It's possible to read internal state using this function, but it's still impossible to create new corrupted value of λ-type based on this internal state. So all immutable and private data is still really immutable.
+  It's possible to read internal state using this function, but it's still impossible to create new corrupted value of λ-type based on this internal state. So all immutable and private data is still really immutable and all values of λ-type are still valid and safe.
 
 - Because of encapsulation protection mechanism, it's very hard to persist values of λ-types using default `:erlang.term_to_binary` and `:erlang.binary_to_term` core functions. It's very hard to do hot code upgrades as well. I think it's more like feature than bug, because if it was possible - then it breaks encapsulation, because there are no guarantees that new code behaves against given term like old one. This is idiomatically correct, new and old versions of the same λ-type are different types in reality:
 
