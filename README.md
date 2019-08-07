@@ -161,7 +161,7 @@ As you can see, if we know the **behaviour** of the thing - we can express it in
 
 ##  Usage (simple example)
 
-This library is based on idea described above. It just provides syntactic sugar to express new types in terms of λ-expressions to create new things which Elixir don't have by default. For simplicity, I'll just name these new kind of types as **λ-types**. Let's implement simple λ-type [Stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) which will have just `push` and `pop` methods:
+This library is based on idea described above. It just provides syntactic sugar to express new types in terms of λ-expressions to create new things which Elixir don't have by default. For simplicity, I'll just name this new kind of types as **λ-types**. Let's implement simple λ-type [Stack](https://en.wikipedia.org/wiki/Stack_(abstract_data_type)) which will have just `push` and `pop` methods:
 
 ```elixir
 defmodule Stack do
@@ -219,7 +219,7 @@ iex> h Stack.return
   • Returns result of the latest called method of this value
 ```
 
-The purpose of `is?` function is pretty obvious. But what about `return` function? Looks like it is related to `return` parameter of `calculus` expressions? Well, it is. Anyway, these 2 functions are accepting value of the `Stack` λ-type as an argument. And we can't create it now, because we even don't have a constructor. That is the main point of this library - type API is always explicit and controlled by developer. There is **NO** default public constructor. Let's create one constructor manually:
+The purpose of `is?` function is pretty obvious. But what about `return` function? Looks like it is related to `return` parameter of `calculus` expressions? Well, it is. Anyway, these 2 functions are accepting value of the `Stack` λ-type as an argument. And we can't create it now, because we even don't have a constructor. This is the main point of this library - type API is always explicit and controlled by developer. There is **NO** default public constructor. Let's create one constructor manually:
 
 ```elixir
 @spec new(list) :: t
@@ -331,7 +331,7 @@ As you can see, our `Stack` λ-type works as normal stack should work. All metho
 
 - **If developer of λ-type `T` implements all smart constructors and methods for `T` properly (validations of external arguments etc), then value of λ-type `T` is always valid in ANY place of ANY program.**
 
-We are not relying on **hope** anymore! Smart constructors, smart methods and encapsulation is much better strategy then just hope, isn't it? But maybe somebody can say: "hey, real type of λ-type value is just a function, so we can call it and access internal state without methods, we can create new functions and corrupt existing values". Let's try it:
+We are not relying on **hope** anymore! Encapsulation, smart constructors and smart methods are much better strategy then just **hope**, isn't it? But maybe somebody can say: "hey, real type of λ-type value is just a function, so we can call it and access internal state without methods, we can create new functions and corrupt existing values". Let's try it:
 
 ```elixir
 iex> s0 = Stack.new([1, 2, 3])
@@ -350,17 +350,16 @@ Our attempts to hack `Stack` failed. This library uses some pretty simple tricks
 
 As I mentioned before, there is another, more complex OOP-like example of [User](https://github.com/timCF/calculus/blob/master/test/support/user.ex) λ-type with some [tests](https://github.com/timCF/calculus/blob/master/test/user_test.exs). I'll put here few interesting statements about it:
 
+- It implements concept of `private`, `immutable` and `public` fields through explicit setters, getters and methods
+
+- In some methods like getter `get_name`, utility function `return` is called inside the method. It completely make sense for getters because they never change internal state of λ-type value, so we can just `return` desired value to outer world for simplicity.
+
 - It uses private `record` as internal representation. I think records are the best types for this purpose because
 
   - records have nice syntax sugar for values and pattern matching (like structs)
   - you can define multiple records in one module (unlike structs)
   - record can be defined as **private** entity (unlike structs)
   - records are extremely fast in most cases (faster than structs)
-
-
-- It implements concept of `private`, `immutable` and `public` fields through explicit setters, getters and methods
-
-- In some methods like getter `get_name`, utility function `return` is called inside the method. It completely make sense for getters because they never change internal state of λ-type value, so we can just `return` desired value to outer world for simplicity.
 
 It's cool example, check it out!
 
@@ -418,7 +417,7 @@ I have a plans about further performance optimizations.
 
   It's possible to read internal state using this function, but it's still impossible to create new corrupted value of λ-type based on this internal state. So all immutable and private data is still really immutable.
 
-- Because of encapsulation protection mechanism, it's very hard to persist values of λ-types using default `:erlang.term_to_binary` and `:erlang.binary_to_term` core functions. It's very hard to do hot code upgrades as well. I think it's more like feature than bug, because if it was possible - then it breaks encapsulation, because there are zero guarantees that new code behaves against given term like old one. This is idiomatically correct, new and old versions of the same λ-type are different types in reality:
+- Because of encapsulation protection mechanism, it's very hard to persist values of λ-types using default `:erlang.term_to_binary` and `:erlang.binary_to_term` core functions. It's very hard to do hot code upgrades as well. I think it's more like feature than bug, because if it was possible - then it breaks encapsulation, because there are no guarantees that new code behaves against given term like old one. This is idiomatically correct, new and old versions of the same λ-type are different types in reality:
 
   ```elixir
   iex> stack = Stack.new([1, 2, 3])
@@ -447,6 +446,8 @@ Lambda calculus is extremely powerful way to extend type system of Erlang and El
 <p align="center">
   <tt>
     Made with ❤️ by
-    <a href="http://itkach.uk" target="_blank">Ilja Tkachuk</a>
+    <a href="https://itkach.uk" target="_blank">Ilja Tkachuk</a>
+    aka
+    <a href="https://github.com/timCF" target="_blank">timCF</a>
   </tt>
 </p>
