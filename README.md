@@ -443,7 +443,6 @@ Lambda calculus is extremely powerful way to extend type system of Erlang and El
 - [Ulisses Almeida](https://github.com/ulissesalmeida) for debugging sessions
 - [Andrey Chernykh](https://github.com/madeinussr) for discussions about naming and design
 
-<hr>
 <p align="center">
   <tt>
     Made with ❤️ by
