@@ -400,6 +400,34 @@ I have a plans about further performance optimizations.
 
   It's possible to read internal state using this function, but it's still impossible to create new corrupted value of λ-type based on this internal state. So all immutable and private data is still really immutable.
 
+- Because of encapsulation protection mechanism, it's very hard to persist values of λ-types using default `:erlang.term_to_binary` and `:erlang.binary_to_term` core functions. It's very hard to do hot code upgrades as well. I think it's more like feature than bug, because if it was possible - then it breaks encapsulation, because there are zero guarantees that new code behaves against given term like old one. This is idiomatically correct, new and old versions of the same λ-type are different types in reality:
+
+  ```elixir
+  iex> stack = Stack.new([1, 2, 3])
+  #Function<1.125256447/2 in Stack.eval/2>
+  iex> Stack.is?(stack)
+  true
+  iex> r Stack
+  {:reloaded, Stack, [Stack]}
+  iex(4)> Stack.is?(stack)
+  false
+  ```
+
+  If you want serialization mechanism for your λ-type, just provide it explicitly with methods and smart constructors. For example `to_json` method + `from_json` smart constructor. JSON is just example, it can be anything you want - text, protobuf, even Erlang binary term format.
+
 ## Conclusion
 
-Lambda calculus is extremely powerful way to extend type system of Erlang and Elixir. This small library (~150 lines of code) already gives foundation for fantastic things. Do you want OOP-like DSL to define data types in terms of private, public, immutable fields, constructors and methods? Take couple quote-unquote expressions and just do it. Do you want smart constructors and abstract data types? It's here. Do you want monads, functors or applicatives like in Haskell? Why not? We have real encapsulation here and if our definition of type is valid, then there are guarantees that any values of this type are always valid as well. With lambda calculus there are no limits in programming languages, there is only one limit - our imagination.
+Lambda calculus is extremely powerful way to extend type system of Erlang and Elixir. This small library (~150 lines of code) already gives foundation for fantastic things. Do you want OOP-like DSL to define data types in terms of private, public, immutable fields, constructors and methods? Take couple quote-unquote expressions and just do it. Do you want smart constructors and abstract data types? It's here. Do you want data types with multiple default constructors like [Maybe](http://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Maybe.html) or [Either](http://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Either.html) monads? Why not? With lambda calculus there are no limits in programming languages, there is only one limit - our imagination.
+
+## Special thanks
+
+- [Renzo Carbonara](https://ren.zone/) for introduction to λ-calculus and amazing [book](https://atypeofprogramming.com/)
+- [Ulisses Almeida](https://github.com/ulissesalmeida) for debugging sessions
+- [Andrey Chernykh](https://github.com/madeinussr) for discussions about naming and design
+
+<footer style="display: table; text-align: center; margin-left: auto; margin-right: auto;">
+  <tt>
+    Made with ❤️ by
+    <a href="http://itkach.uk" target="_blank">Ilja Tkachuk</a>
+  </tt>
+</footer>
