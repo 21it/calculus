@@ -39,9 +39,9 @@ defmodule Calculus.MixProject do
       # hex.pm stuff
       description: "Real smart constructors, real private and immutable fields for Elixir data types. Inspired by Alonzo Church.",
       package: [
-        licenses: ["Apache 2.0"],
+        licenses: ["MIT"],
         files: ["lib", "priv", "mix.exs", "README*", "VERSION*"],
-        maintainers: ["ILJA TKACHUK"],
+        maintainers: ["ILJA TKACHUK aka timCF"],
         links: %{
           "GitHub" => "https://github.com/timCF/calculus",
           "Author's home page" => "https://itkach.uk/"

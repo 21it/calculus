@@ -88,7 +88,7 @@ defmodule Calculus do
       end
 
       defp eval(it, method) do
-        case Function.info(it, :module) do
+        case :erlang.fun_info(it, :module) do
           {:module, __MODULE__} ->
             #
             # TODO : test that "state" and "return" can not be overriden in "quoted_state" expression
