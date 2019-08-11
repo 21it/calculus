@@ -1,6 +1,8 @@
 defmodule Calculus do
   @moduledoc """
-  Real smart constructors, real private and immutable fields for Elixir data types. Inspired by Alonzo Church.
+  New data types with real encapsulation.
+  Create smart constructors, private and immutable fields, sum types and many other fun things.
+  Inspired by Alonzo Church.
   """
 
   @doc """

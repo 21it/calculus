@@ -442,6 +442,25 @@ Lambda calculus is extremely powerful way to extend type system of Erlang and El
 - [Ulisses Almeida](https://github.com/ulissesalmeida) for debugging sessions
 - [Andrey Chernykh](https://github.com/madeinussr) for discussions about naming and design
 
+## Version 0.1.2
+
+Introduce `defcalculus/3` macro. New second argument is keyword list of options:
+
+- `export_return :: boolean` is `return` function exported or not, default = `true`
+- `generate_type :: boolean` is opaque type `t` generated or not, default = `true`
+
+Example:
+
+```elixir
+defcalculus state, export_return: false, generate_type: false do
+  #
+  # methods definition
+  #
+end
+```
+
+Motivation for these changes: sometimes auto-exported `return` function can be very confusing for users of λ-type, for example if this type implements `Monad` type class where `return` expression have a completely different meaning. And default auto-generated opaque type `t` sometimes is not flexible enough, for example if λ-type accepts other type as parameter like monads `m(a)` or functors `f(a)`.
+
 <br>
 <p align="center">
   <tt>
