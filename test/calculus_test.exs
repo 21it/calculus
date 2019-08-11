@@ -32,4 +32,36 @@ defmodule CalculusTest do
 
     assert [{NonEmptyCalculus, _}] = compiled
   end
+
+  test "Valid options for defcalculus/3" do
+    compiled =
+      quote do
+        defmodule OptsCalculus do
+          use Calculus
+
+          defcalculus x, export_return: false, generate_type: false do
+          end
+        end
+      end
+      |> Code.compile_quoted()
+
+    assert [{OptsCalculus, _}] = compiled
+    refute :erlang.function_exported(OptsCalculus, :return, 1)
+  end
+
+  test "Invalid options for defcalculus/3" do
+    assert_raise RuntimeError,
+                 "Expected defcalculus opts [export_return: bool, generate_type: bool], but got [export_returnnnn: false, generate_type: false]",
+                 fn ->
+                   quote do
+                     defmodule InvalidOptsCalculus do
+                       use Calculus
+
+                       defcalculus x, export_returnnnn: false, generate_type: false do
+                       end
+                     end
+                   end
+                   |> Code.compile_quoted()
+                 end
+  end
 end

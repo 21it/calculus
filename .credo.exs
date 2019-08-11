@@ -92,7 +92,7 @@
         {Credo.Check.Readability.SpaceAfterCommas, priority: :low},
         {Credo.Check.Refactor.DoubleBooleanNegation, priority: :high},
         {Credo.Check.Refactor.CondStatements},
-        {Credo.Check.Refactor.CyclomaticComplexity, priority: :high, exit_status: 2, max_complexity: 12},
+        {Credo.Check.Refactor.CyclomaticComplexity, priority: :high, exit_status: 2, max_complexity: 25},
         {Credo.Check.Refactor.FunctionArity},
         {Credo.Check.Refactor.LongQuoteBlocks},
         {Credo.Check.Refactor.MatchInCondition},
