@@ -76,12 +76,12 @@ defmodule Calculus do
       first_defined_eval_clauses ++ middle_eval_clauses ++ last_eval_clauses
     }
 
-    [export_return: export_return, generate_type: generate_type] =
+    [export_return: export_return, generate_opaque: generate_opaque] =
       opts
       |> parse_opts()
 
     return_spec_ast =
-      case generate_type do
+      case generate_opaque do
         true ->
           quote location: :keep do
             @spec return(__MODULE__.t()) :: term
@@ -115,8 +115,8 @@ defmodule Calculus do
           end
       end
 
-    generate_type_ast =
-      case generate_type do
+    generate_opaque_ast =
+      case generate_opaque do
         true ->
           quote location: :keep do
             @opaque t :: __MODULE__.t()
@@ -130,7 +130,7 @@ defmodule Calculus do
     quote location: :keep do
       @security_key 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom()
 
-      unquote(generate_type_ast)
+      unquote(generate_opaque_ast)
 
       defmacrop calculus(state: state, return: return) do
         quote location: :keep do
@@ -196,7 +196,7 @@ defmodule Calculus do
     end
   end
 
-  @default_opts [export_return: true, generate_type: true]
+  @default_opts [export_return: true, generate_opaque: true]
   @opts_keys @default_opts |> Keyword.keys() |> Enum.sort()
 
   defp parse_opts(opts) do
@@ -210,7 +210,7 @@ defmodule Calculus do
       |> Enum.sort()
     else
       false ->
-        "Expected defcalculus opts [export_return: bool, generate_type: bool], but got #{inspect(opts)}"
+        "Expected defcalculus opts [export_return: bool, generate_opaque: bool], but got #{inspect(opts)}"
         |> raise
     end
   end

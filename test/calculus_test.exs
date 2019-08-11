@@ -39,7 +39,7 @@ defmodule CalculusTest do
         defmodule OptsCalculus do
           use Calculus
 
-          defcalculus x, export_return: false, generate_type: false do
+          defcalculus x, export_return: false, generate_opaque: false do
           end
         end
       end
@@ -51,13 +51,13 @@ defmodule CalculusTest do
 
   test "Invalid options for defcalculus/3" do
     assert_raise RuntimeError,
-                 "Expected defcalculus opts [export_return: bool, generate_type: bool], but got [export_returnnnn: false, generate_type: false]",
+                 "Expected defcalculus opts [export_return: bool, generate_opaque: bool], but got [export_returnnnn: false, generate_opaque: false]",
                  fn ->
                    quote do
                      defmodule InvalidOptsCalculus do
                        use Calculus
 
-                       defcalculus x, export_returnnnn: false, generate_type: false do
+                       defcalculus x, export_returnnnn: false, generate_opaque: false do
                        end
                      end
                    end

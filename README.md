@@ -442,17 +442,17 @@ Lambda calculus is extremely powerful way to extend type system of Erlang and El
 - [Ulisses Almeida](https://github.com/ulissesalmeida) for debugging sessions
 - [Andrey Chernykh](https://github.com/madeinussr) for discussions about naming and design
 
-## Version 0.1.2
+## Version 0.1.3
 
 Introduce `defcalculus/3` macro. New second argument is keyword list of options:
 
 - `export_return :: boolean` is `return` function exported or not, default = `true`
-- `generate_type :: boolean` is opaque type `t` generated or not, default = `true`
+- `generate_opaque :: boolean` is opaque type `t` generated or not, default = `true`
 
 Example:
 
 ```elixir
-defcalculus state, export_return: false, generate_type: false do
+defcalculus state, export_return: false, generate_opaque: false do
   #
   # methods definition
   #
