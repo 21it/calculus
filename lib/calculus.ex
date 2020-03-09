@@ -128,19 +128,28 @@ defmodule Calculus do
       end
 
     quote location: :keep do
-      @security_key 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom()
+      @atom_builder fn -> 64 |> :crypto.strong_rand_bytes() |> Base.encode64() |> String.to_atom() end
+      @security_key @atom_builder.()
+      @stateful_tag @atom_builder.()
+      @stateless_tag @atom_builder.()
 
       unquote(generate_opaque_ast)
 
       defmacrop calculus(state: state, return: return) do
         quote location: :keep do
-          {unquote(state), unquote(return)}
+          {@stateful_tag, unquote(state), unquote(return)}
         end
       end
 
       defmacrop calculus(return: return, state: state) do
         quote location: :keep do
-          {unquote(state), unquote(return)}
+          {@stateful_tag, unquote(state), unquote(return)}
+        end
+      end
+
+      defmacrop calculus(return: return) do
+        quote location: :keep do
+          {@stateless_tag, unquote(return)}
         end
       end
 
@@ -149,19 +158,33 @@ defmodule Calculus do
         |> raise
       end
 
+      defmacrop construct(state) do
+        quote location: :keep do
+          fn :new, @security_key ->
+            calculus(state: unquote(state), return: :ok)
+          end
+          |> eval(:new)
+        end
+      end
+
       defp eval(it, method) do
         case :erlang.fun_info(it, :module) do
           {:module, __MODULE__} ->
             #
             # TODO : test that "state" and "return" can not be overriden in "quoted_state" expression
             #
-            calculus(state: state, return: return) = it.(method, @security_key)
-            unquote(quoted_state) = state
+            case it.(method, @security_key) do
+              calculus(return: return) ->
+                return
 
-            case method do
-              :return -> return
-              :is? -> return
-              _ -> unquote(eval_fn)
+              calculus(state: state, return: return) ->
+                unquote(quoted_state) = state
+
+                case method do
+                  :return -> return
+                  :is? -> return
+                  _ -> unquote(eval_fn)
+                end
             end
 
           {:module, module} ->
@@ -182,15 +205,6 @@ defmodule Calculus do
           eval(it, :is?)
         rescue
           _ -> false
-        end
-      end
-
-      defmacrop construct(state) do
-        quote location: :keep do
-          fn :new, @security_key ->
-            calculus(state: unquote(state), return: :ok)
-          end
-          |> eval(:new)
         end
       end
     end

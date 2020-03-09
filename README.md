@@ -13,7 +13,7 @@ The package can be installed by adding `calculus` to your list of dependencies i
 ```elixir
 def deps do
   [
-    {:calculus, "~> 0.1.0"}
+    {:calculus, "~> 0.2"}
   ]
 end
 ```
@@ -460,6 +460,18 @@ end
 ```
 
 Motivation for these changes: sometimes auto-exported `return` function can be very confusing for users of λ-type, for example if this type implements `Monad` type class where `return` expression have a completely different meaning. And default auto-generated opaque type `t` sometimes is not flexible enough, for example if λ-type accepts other type as parameter like monads `m(a)` or functors `f(a)`.
+
+## Version 0.2.0
+
+Make `state` parameter of private `&calculus/1` macro optional. If `state` parameter was not provided, computation is considered stateless and will `return` automatically. This is done for better support of functional programming style. Example:
+
+```elixir
+# stateful OOP style (old)
+calculus(state: state, return: value)
+
+# stateless functional style (new)
+calculus(return: value)
+```
 
 <br>
 <p align="center">
