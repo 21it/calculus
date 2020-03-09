@@ -1,5 +1,15 @@
 # Change Log
 
+## [v0.2.0](https://github.com/timCF/calculus/tree/v0.2.0) (2020-03-09)
+[Full Changelog](https://github.com/timCF/calculus/compare/v0.1.3...v0.2.0)
+
+**Merged pull requests:**
+
+- 0.2.0 [\#1](https://github.com/timCF/calculus/pull/1) ([tkachuk-labs](https://github.com/tkachuk-labs))
+
+## [v0.1.3](https://github.com/timCF/calculus/tree/v0.1.3) (2019-08-11)
+[Full Changelog](https://github.com/timCF/calculus/compare/v0.1.2...v0.1.3)
+
 ## [v0.1.2](https://github.com/timCF/calculus/tree/v0.1.2) (2019-08-11)
 [Full Changelog](https://github.com/timCF/calculus/compare/v0.1.1...v0.1.2)
 
