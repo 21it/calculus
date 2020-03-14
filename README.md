@@ -473,6 +473,18 @@ calculus(state: state, return: value)
 calculus(return: value)
 ```
 
+## Version 0.3.0
+
+Some custom exception structs. Additional compile-time option `generate_return: boolean`. Bugfix for possible Dialyzer issue when private `&return/1` was generated but not used. Example:
+
+```elixir
+defcalculus state, export_return: false, generate_return: false do
+  #
+  # methods definition
+  #
+end
+```
+
 <br>
 <p align="center">
   <tt>
