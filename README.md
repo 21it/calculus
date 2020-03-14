@@ -13,7 +13,7 @@ The package can be installed by adding `calculus` to your list of dependencies i
 ```elixir
 def deps do
   [
-    {:calculus, "~> 0.2"}
+    {:calculus, "~> 0.3"}
   ]
 end
 ```
