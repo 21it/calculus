@@ -81,7 +81,7 @@ defmodule StackTest do
   end
 
   test "Value encapsulation", %{x: x} do
-    assert_raise RuntimeError,
+    assert_raise Calculus.Exception.Runtime,
                  "For value of the type Stack got unsupported METHOD=:pop with SECURITY_KEY=nil",
                  fn ->
                    x.(:pop, nil)
@@ -89,7 +89,7 @@ defmodule StackTest do
   end
 
   test "Module encapsulation" do
-    assert_raise RuntimeError,
+    assert_raise Calculus.Exception.Runtime,
                  "Value of the type Stack can't be created in other module StackTest",
                  fn ->
                    Stack.return(&{&1, &2})

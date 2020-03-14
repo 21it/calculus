@@ -5,6 +5,16 @@ defmodule Calculus do
   Inspired by Alonzo Church.
   """
 
+  defmodule Exception do
+    defmodule Compiletime do
+      defexception [:message]
+    end
+
+    defmodule Runtime do
+      defexception [:message]
+    end
+  end
+
   @doc """
   Imports `Calculus.defcalculus/2` macro
   """
@@ -43,13 +53,30 @@ defmodule Calculus do
   Macro to define λ-type
   """
   defmacro defcalculus(quoted_state, opts, do: raw_eval_clauses) do
-    first_defined_eval_clauses =
-      quote location: :keep do
-        :return, @security_key ->
-          calculus(state: state, return: return)
+    [
+      export_return: export_return,
+      generate_opaque: generate_opaque,
+      generate_return: generate_return
+    ] =
+      opts
+      |> parse_opts()
 
-        :is?, @security_key ->
-          calculus(state: state, return: true)
+    first_defined_eval_clauses =
+      case generate_return do
+        true ->
+          quote location: :keep do
+            :return, @security_key ->
+              calculus(state: state, return: return)
+
+            :is?, @security_key ->
+              calculus(state: state, return: true)
+          end
+
+        false ->
+          quote location: :keep do
+            :is?, @security_key ->
+              calculus(state: state, return: true)
+          end
       end
 
     middle_eval_clauses =
@@ -63,11 +90,12 @@ defmodule Calculus do
     last_eval_clauses =
       quote location: :keep do
         method, security_key ->
-          raise(
-            "For value of the type #{inspect(__MODULE__)} got unsupported METHOD=#{inspect(method)} with SECURITY_KEY=#{
-              inspect(security_key)
-            }"
-          )
+          raise %Calculus.Exception.Runtime{
+            message:
+              "For value of the type #{inspect(__MODULE__)} got unsupported METHOD=#{inspect(method)} with SECURITY_KEY=#{
+                inspect(security_key)
+              }"
+          }
       end
 
     eval_fn = {
@@ -75,10 +103,6 @@ defmodule Calculus do
       [],
       first_defined_eval_clauses ++ middle_eval_clauses ++ last_eval_clauses
     }
-
-    [export_return: export_return, generate_opaque: generate_opaque] =
-      opts
-      |> parse_opts()
 
     return_spec_ast =
       case generate_opaque do
@@ -93,8 +117,8 @@ defmodule Calculus do
       end
 
     return_ast =
-      case export_return do
-        true ->
+      case {generate_return, export_return} do
+        {true, true} ->
           quote location: :keep do
             @doc """
             - Accepts value of `#{inspect(__MODULE__)}` λ-type
@@ -107,11 +131,15 @@ defmodule Calculus do
             end
           end
 
-        false ->
+        {true, false} ->
           quote location: :keep do
             defp return(it) do
               eval(it, :return)
             end
+          end
+
+        {false, false} ->
+          quote location: :keep do
           end
       end
 
@@ -124,6 +152,26 @@ defmodule Calculus do
 
         false ->
           quote location: :keep do
+          end
+      end
+
+    eval_shortcuts =
+      case generate_return do
+        true ->
+          quote location: :keep do
+            case method do
+              :return -> return
+              :is? -> return
+              _ -> unquote(eval_fn)
+            end
+          end
+
+        false ->
+          quote location: :keep do
+            case method do
+              :is? -> return
+              _ -> unquote(eval_fn)
+            end
           end
       end
 
@@ -154,8 +202,9 @@ defmodule Calculus do
       end
 
       defmacrop calculus(some) do
-        "Calculus expression expect keyword list, example: calculus(state: foo, return: bar), but got term #{inspect(some)}"
-        |> raise
+        raise %Calculus.Exception.Compiletime{
+          message: "Expected keyword list argument, example: calculus(state: foo, return: bar), but got term #{inspect(some)}"
+        }
       end
 
       defmacrop construct(state) do
@@ -179,17 +228,13 @@ defmodule Calculus do
 
               calculus(state: state, return: return) ->
                 unquote(quoted_state) = state
-
-                case method do
-                  :return -> return
-                  :is? -> return
-                  _ -> unquote(eval_fn)
-                end
+                unquote(eval_shortcuts)
             end
 
           {:module, module} ->
-            "Value of the type #{inspect(__MODULE__)} can't be created in other module #{inspect(module)}"
-            |> raise
+            raise %Calculus.Exception.Runtime{
+              message: "Value of the type #{inspect(__MODULE__)} can't be created in other module #{inspect(module)}"
+            }
         end
       end
 
@@ -210,7 +255,11 @@ defmodule Calculus do
     end
   end
 
-  @default_opts [export_return: true, generate_opaque: true]
+  @default_opts [
+    export_return: true,
+    generate_opaque: true,
+    generate_return: true
+  ]
   @opts_keys @default_opts |> Keyword.keys() |> Enum.sort()
 
   defp parse_opts(opts) do
@@ -222,10 +271,24 @@ defmodule Calculus do
       @default_opts
       |> Keyword.merge(opts)
       |> Enum.sort()
+      |> case do
+        [
+          export_return: true,
+          generate_opaque: _,
+          generate_return: false
+        ] ->
+          raise %Calculus.Exception.Compiletime{
+            message: "Can not export return without generation, invalid opts #{inspect(opts)}"
+          }
+
+        real_opts ->
+          real_opts
+      end
     else
       false ->
-        "Expected defcalculus opts [export_return: bool, generate_opaque: bool], but got #{inspect(opts)}"
-        |> raise
+        raise %Calculus.Exception.Compiletime{
+          message: "Expected opts [export_return: bool, generate_opaque: bool, generate_return: bool], but got #{inspect(opts)}"
+        }
     end
   end
 end

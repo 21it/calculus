@@ -74,7 +74,7 @@ defmodule UserTest do
   end
 
   test "Value encapsulation", %{x: x} do
-    assert_raise RuntimeError,
+    assert_raise Calculus.Exception.Runtime,
                  "For value of the type User got unsupported METHOD={:withdraw, 100} with SECURITY_KEY=nil",
                  fn ->
                    x.({:withdraw, 100}, nil)
@@ -82,7 +82,7 @@ defmodule UserTest do
   end
 
   test "Module encapsulation" do
-    assert_raise RuntimeError,
+    assert_raise Calculus.Exception.Runtime,
                  "Value of the type User can't be created in other module UserTest",
                  fn ->
                    User.return(&{&1, &2})
